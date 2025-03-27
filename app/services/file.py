@@ -3,7 +3,7 @@ from app.models.file import File
 from app.schemas.file import FileSchema
 
 def upload_file(db: Session, file_data: FileSchema):
-    new_file = File(**file_data.dict())
+    new_file = File(**file_data.model_dump())
     db.add(new_file)
     db.commit()
     db.refresh(new_file)

@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
 from app.config import Base
+from datetime import datetime
 
 class Admin(Base):
     __tablename__ = "admin"
@@ -8,3 +9,5 @@ class Admin(Base):
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.now(), nullable=False)
+    update_at = Column(DateTime, onupdate=datetime.now(), nullable=False)

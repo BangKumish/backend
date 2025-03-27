@@ -5,10 +5,10 @@ from sqlalchemy.orm import Session
 
 from app.config import SessionLocal
 
-from app.services.dosen import create_dosen, get_dosen, get_all_dosen
+from app.services.dosen import create_dosen, get_dosen, get_all_dosen, update_dosen
 from app.services.waktu_bimbingan import get_waktuBimbingan_from_dosen
 
-from app.schemas.dosen import DosenSchema
+from app.schemas.dosen import DosenSchema, DosenUpdateSchema
 
 from app.utils.dependencies import get_current_user
 
@@ -59,3 +59,10 @@ def get_dosen_route(nomor_induk: str, db: Session = Depends(get_db)):
             for item in waktu_bimbingan
         ]
     })
+
+@router.put("/{nomor_induk}")
+def update_dosen_route(nomor_induk: str, dosen_data: DosenUpdateSchema, db: Session = Depends(get_db)):
+    dosen = update_dosen(db, nomor_induk, dosen_data)
+    if not dosen:
+        raise HTTPException(status_code = 404, detail = "Dosen Tidak Ditemukan")
+    return {"Message": "Dosen Telah diUpdate", "data":dosen}

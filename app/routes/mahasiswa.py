@@ -8,10 +8,11 @@ from app.config import SessionLocal
 from app.services.mahasiswa import create_mahasiswa
 from app.services.mahasiswa import get_all_mahasiswa
 from app.services.mahasiswa import get_mahasiswa
+from app.services.mahasiswa import update_mahasiswa
 
 from app.services.waktu_bimbingan import get_waktuBimbingan_from_mahasiswa
 
-from app.schemas.mahasiswa import MahasiswaSchema
+from app.schemas.mahasiswa import MahasiswaSchema, MahasiswaUpdateSchema
 
 
 router = APIRouter(prefix="/mahasiswa", tags=["Mahasiswa"])
@@ -56,4 +57,10 @@ def get_mahasiswa_route(nim: str, db: Session = Depends(get_db)):
         ]
     })
 
+@router.put("/{nim}")
+def update_mahasiswa_route(nim: str, update_data: MahasiswaUpdateSchema, db: Session = Depends(get_db)):
+    data = update_mahasiswa(db, nim, update_data)
+    if not data:
+        raise HTTPException(status_code = 404, detail = "Mahasiswa Tidak Ditemukan")
+    return {"Message": "Mahasiswa Telah diUpdate", "data":data}
 

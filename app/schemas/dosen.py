@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from app.schemas.waktu_bimbingan import WaktuBimbinganSchema
+from typing import Optional
 
 class DosenSchema(BaseModel):
     nomor_induk: str
@@ -9,7 +9,15 @@ class DosenSchema(BaseModel):
     status_kehadiran: str
     ketersediaan_bimbingan: bool = True
     jumlah_bimbingan: int = 0
-    # waktu_bimbingan: list[WaktuBimbinganSchema]
 
     class Config:
         from_attributes = True
+
+class DosenUpdateSchema(BaseModel):
+    nomor_induk: Optional[str] = None
+    name: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
+    status_kehadiran: Optional[str] = None
+    ketersediaan_bimbingan: Optional[bool] = None
+    jumlah_bimbingan: Optional[int] = None

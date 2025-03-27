@@ -1,7 +1,8 @@
-from sqlalchemy import Column, String, ForeignKey, Integer, UniqueConstraint
+from sqlalchemy import Column, String, ForeignKey, Integer, UniqueConstraint, DateTime
 from sqlalchemy.orm import relationship, validates
 from app.config import Base
 
+from datetime import datetime
 class MahasiswaDosen(Base):
     __tablename__ = "mahasiswa_dosen"
 
@@ -9,6 +10,8 @@ class MahasiswaDosen(Base):
     mahasiswa_nim = Column(String, ForeignKey("mahasiswa.nim"), nullable=False)
     dosen_id = Column(String, ForeignKey("dosen.nomor_induk"))
     role = Column(String)
+    created_at = Column(DateTime, default=datetime.now(), nullable=False)
+    update_at = Column(DateTime, onupdate=datetime.now(), nullable=False)
 
     mahasiswa = relationship("Mahasiswa", back_populates="dosen_relations")
     dosen = relationship("Dosen", back_populates="mahasiswa_relations")

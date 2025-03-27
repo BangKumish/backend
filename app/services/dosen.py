@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models.dosen import Dosen
-from app.schemas.dosen import DosenSchema
+from app.schemas.dosen import DosenSchema, DosenUpdateSchema
 from app.utils.security import hash_password
 
 def create_dosen(db: Session, dosen: DosenSchema):
@@ -18,6 +18,24 @@ def create_dosen(db: Session, dosen: DosenSchema):
     db.commit()
     db.refresh(db_dosen)
     return db_dosen
+
+def update_dosen(db: Session, nomor_induk: str, dosen_data: DosenUpdateSchema):
+    dosen = db.query(Dosen).filter(Dosen.nomor_induk == nomor_induk).first()
+    
+    if not dosen:
+        return None
+    
+    update_data = dosen_data.dict(exclude_unset=True)
+
+    if "password" in update_data:
+        update_data["password"] = hash_password(update_data["password"])
+
+    for key, value in update_data.items():
+        setattr(dosen, key, value)
+
+    db.commit()
+    db.refresh(dosen)
+    return dosen
 
 def get_dosen(db: Session, nomor_induk: str):
     return db.query(Dosen).filter(Dosen.nomor_induk == nomor_induk).first()

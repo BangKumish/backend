@@ -1,7 +1,9 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, Date, Time
+from sqlalchemy import Column, String, Integer, ForeignKey, Date, Time, DateTime
 from sqlalchemy.orm import relationship
 
 from app.config import Base
+
+from datetime import datetime
 
 class WaktuBimbingan(Base):
     __tablename__ = "waktu_bimbingan"
@@ -12,6 +14,8 @@ class WaktuBimbingan(Base):
     tanggal = Column(Date, nullable=False)
     waktu_mulai = Column(Time, nullable=False)
     waktu_selesai = Column(Time, nullable=False)
+    # created_at = Column(DateTime, default=datetime.now(), nullable=False)
+    # update_at = Column(DateTime, onupdate=datetime.now(), nullable=False)
 
     mahasiswa = relationship("Mahasiswa", back_populates="waktu_bimbingan")
     dosen = relationship("Dosen", back_populates="waktu_bimbingan")

@@ -3,7 +3,7 @@ from app.models.antrian_bimbingan import AntrianBimbingan
 from app.schemas.antrian_bimbingan import AntrianBimbinganSchema
 
 def create_antrian(db: Session, antrian: AntrianBimbinganSchema):
-    db_antrian = AntrianBimbingan(**antrian.dict())
+    db_antrian = AntrianBimbingan(**antrian.model_dump())
     db.add(db_antrian)
     db.commit()
     db.refresh(db_antrian)
