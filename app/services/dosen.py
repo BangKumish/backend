@@ -13,6 +13,7 @@ def create_dosen(db: Session, dosen: DosenSchema):
         status_kehadiran = dosen.status_kehadiran,
         ketersediaan_bimbingan = dosen.ketersediaan_bimbingan,
         jumlah_bimbingan = dosen.jumlah_bimbingan,
+        alias = dosen.alias,
     )
     db.add(db_dosen)
     db.commit()
@@ -38,7 +39,7 @@ def update_dosen(db: Session, nomor_induk: str, dosen_data: DosenUpdateSchema):
     return dosen
 
 def get_dosen(db: Session, nomor_induk: str):
-    return db.query(Dosen).filter(Dosen.nomor_induk == nomor_induk).first()
+    return db.query(Dosen).filter(Dosen.alias == nomor_induk).first()
 
 def get_all_dosen(db: Session):
-    return db.query(Dosen).order_by(Dosen.nomor_induk.asc()).all()
+    return db.query(Dosen).order_by(Dosen.name.asc()).all()

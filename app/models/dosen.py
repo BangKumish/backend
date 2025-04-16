@@ -21,5 +21,6 @@ class Dosen(Base):
     jumlah_bimbingan = Column(Integer, default=0)
     created_at = Column(DateTime, default=datetime.now(), nullable=False)
     update_at = Column(DateTime, onupdate=datetime.now(), nullable=False)
+    alias = Column(String, nullable=False)
 
     waktu_bimbingan: Mapped[List[WaktuBimbingan]] = Relationship(back_populates="dosen")
