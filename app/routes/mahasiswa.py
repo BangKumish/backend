@@ -37,25 +37,6 @@ def get_mahasiswa_route(nim: str, db: Session = Depends(get_db)):
     data = get_mahasiswa(db, nim)
     if not data:
         raise HTTPException(status_code=404, detail="Data not Found")
-    
-    waktu_bimbingan = get_waktuBimbingan_from_mahasiswa(db, nim)
-    
-    return JSONResponse (content={
-        "dosen": {
-            "id": data.nim,
-            "nama": data.nama,
-            "email": data.email
-        },
-        "waktu_bimbingan": [
-            {
-                "id": item.id,
-                "tanggal": str(item.tanggal),
-                "waktu_mulai": str(item.waktu_mulai),
-                "waktu_selesai": str(item.waktu_selesai)
-            }
-            for item in waktu_bimbingan
-        ]
-    })
 
 @router.put("/{nim}")
 def update_mahasiswa_route(nim: str, update_data: MahasiswaUpdateSchema, db: Session = Depends(get_db)):
@@ -64,3 +45,45 @@ def update_mahasiswa_route(nim: str, update_data: MahasiswaUpdateSchema, db: Ses
         raise HTTPException(status_code = 404, detail = "Mahasiswa Tidak Ditemukan")
     return {"Message": "Mahasiswa Telah diUpdate", "data":data}
 
+@router.get("/detail/{nim}")
+def get_mahasiswa_detail(nim: str, db: Session = Depends(get_db)):
+    mahasiswa = get_mahasiswa(db, nim)
+    if not mahasiswa:
+        raise HTTPException(
+            status_code=404,
+            detail="Mahasiswa not Found"
+        )
+
+    from app.routes.mahasiswa_dosen import get_all_relation_by_mahasiswa
+
+    dosen_roles = {
+        "Dosen Wali": None,
+        "Dosen KP": None,
+        "Dosen Pembimbing 1": None,
+        "Dosen Pembimbing 2": None,
+        "Dosen Penguji 1": None,
+        "Dosen Penguji 2": None
+    }
+
+    for relasi in mahasiswa.dosen_relation:
+        if relasi.dosen:
+            role = relasi.role
+            dosen_roles[role] = {
+                "nama": relasi.dosen.name,
+                "alias": relasi.dosen.alias
+            }
+
+    response = {
+        "mahasiswa": {
+            "nama": mahasiswa.nama,
+            "nim": mahasiswa.nim,
+            "email": mahasiswa.email,
+            "tugas_akhir": {
+                "judul": mahasiswa.topik_penelitian,
+                "status": "Belum Ditentukan"
+            }
+        },
+        "mahasiswa_dosen": dosen_roles
+    }
+
+    return JSONResponse(content=response)

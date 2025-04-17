@@ -48,7 +48,6 @@ def get_dosen_route(nomor_induk: str, db: Session = Depends(get_db)):
             "email": data.email,
             "status_kehadiran": data.status_kehadiran,
             "ketersediaan_bimbingan": data.ketersediaan_bimbingan,
-            "jumlah_bimbingan": data.jumlah_bimbingan,
         },
         "waktu_bimbingan": [
             {

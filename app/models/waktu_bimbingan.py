@@ -3,17 +3,16 @@ from sqlalchemy.orm import relationship
 
 from app.config import Base
 
-from datetime import datetime
-
 class WaktuBimbingan(Base):
     __tablename__ = "waktu_bimbingan"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     nim = Column(String, ForeignKey('mahasiswa.nim'), nullable=False)
-    nomor_induk = Column(String, ForeignKey('dosen.nomor_induk'), nullable=False)
+    nomor_induk = Column(String, ForeignKey('dosen.alias'), nullable=False)
     tanggal = Column(Date, nullable=False)
     waktu_mulai = Column(Time, nullable=False)
     waktu_selesai = Column(Time, nullable=False)
+    
     # created_at = Column(DateTime, default=datetime.now(), nullable=False)
     # update_at = Column(DateTime, onupdate=datetime.now(), nullable=False)
 

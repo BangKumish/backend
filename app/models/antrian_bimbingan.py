@@ -8,7 +8,7 @@ class AntrianBimbingan(Base):
 
     id_antrian = Column(Integer, primary_key=True, index=True)
     nim = Column(String, ForeignKey("mahasiswa.nim"), nullable=False)
-    nomor_induk = Column(String, ForeignKey("dosen.nomor_induk"), nullable=False)
+    nomor_induk = Column(String, ForeignKey("dosen.alias"), nullable=False)
     status_antrian = Column(String, nullable=False, default="Menunggu")
     waktu_antrian = Column(TIMESTAMP, nullable=False)
     # created_at = Column(DateTime, default=datetime.now(), nullable=False)

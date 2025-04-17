@@ -9,7 +9,6 @@ class DosenSchema(BaseModel):
     password: str
     status_kehadiran: str
     ketersediaan_bimbingan: bool = True
-    jumlah_bimbingan: int = 0
     class Config:
         from_attributes = True
 
