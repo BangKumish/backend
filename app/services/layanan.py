@@ -35,7 +35,7 @@ def create_jenis_layanan(db: Session, data: JenisLayananCreate):
     return jenis
 
 def get_all_jenis_layanan(db: Session):
-    return db.query(JenisLayanan).all()
+    return db.query(JenisLayanan).order_by(JenisLayanan.id).all()
 
 def get_jenis_layanan_by_id(db: Session, id: int):
     return db.query(JenisLayanan).filter(JenisLayanan.id == id).first()

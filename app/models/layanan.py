@@ -23,6 +23,7 @@ class JenisLayanan(Base):
     nama_layanan = Column(String, nullable=False, unique=True)
     deskripsi = Column(Text)
     is_aktif = Column(Boolean, default=True)
+    url_file = Column(String)
 
     dokumen_persyaratan =  Relationship("DokumenPersyaratan", back_populates="jenis_layanan")
     pengajuan = Relationship("PengajuanLayanan", back_populates="jenis_layanan")

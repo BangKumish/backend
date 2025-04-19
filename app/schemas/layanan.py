@@ -18,6 +18,7 @@ class JenisLayananBase(BaseModel):
     nama_layanan: str
     deskripsi: Optional[str] = None
     is_aktif: Optional[bool] = True
+    url_file: Optional[str] = None
 
 class JenisLayananCreate(JenisLayananBase):
     pass
