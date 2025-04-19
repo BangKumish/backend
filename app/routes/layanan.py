@@ -46,7 +46,7 @@ def create_jenis_layanan_route(data: JenisLayananCreate, db: Session = Depends(g
 def get_all_jenis_layanan_route(db: Session = Depends(get_db)):
     return get_all_jenis_layanan(db)
 
-@router.get("/jenis", response_model=list[JenisLayananResponse])
+@router.get("/jenis/{id}", response_model=list[JenisLayananResponse])
 def get_jenis_layanan_by_id(id: int, db: Session = Depends(get_db)):
     jenis = get_jenis_layanan_by_id(db, id)
     if not jenis:
