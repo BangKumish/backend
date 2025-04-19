@@ -8,7 +8,7 @@ class AntrianBimbinganSchema(BaseModel):
     waktu_antrian: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class AmbilAntrianResponse(BaseModel):
     message: str

@@ -1,7 +1,15 @@
+from fastapi import UploadFile, HTTPException
+
 from sqlalchemy.orm import Session
 
 from app.models.layanan import *
 from app.schemas.layanan import *
+from app.utils.supabase_client import supabase
+
+from mimetypes import guess_type
+from datetime import datetime
+import uuid
+import os
 
 def create_layanan(db: Session, layanan: LayananSchema):
     db_layanan = Layanan(
@@ -121,3 +129,40 @@ def create_lampiran(db: Session, data: LampiranPengajuanCreate):
 
 def get_lampiran_by_pengajuan(db: Session, pengajuan_id: int):
     return db.query(LampiranPengajuan).filter(LampiranPengajuan.pengajuan_id == pengajuan_id).all()
+
+
+# ============================
+# UPLOAD LAMPIRAN 
+# ============================
+
+from dotenv import load_dotenv
+load_dotenv()
+BUCKET_NAME = os.getenv("SUPABASE_BUCKET")
+
+def upload_to_supabase(file: UploadFile) -> str:
+    file_ext = file.filename.split('.')[-1]
+    unique_filename = f"{uuid.uuid4()}_{file.filename}"
+    content_type = guess_type(file.filename)[0] or "application/octet-stream"
+
+    file_bytes = file.file.read()
+    supabase.storage.from_(BUCKET_NAME).upload(
+        file = file_bytes,
+        path = unique_filename,
+        file_options={
+            "content-type": content_type    
+        }
+    )
+    public_url = supabase.storage.from_(BUCKET_NAME).get_public_url(unique_filename)
+    return public_url
+
+def save_uploaded_file_metadata(db, nama_dokumen, file_url, pengajuan_id):
+    lampiran = LampiranPengajuan(
+        pengajuan_id = pengajuan_id,
+        nama_dokumen = nama_dokumen,
+        file_url = file_url,
+        uploaded_at = datetime.now()
+    )
+    db.add(lampiran)
+    db.commit()
+    db.refresh(lampiran)
+    return lampiran

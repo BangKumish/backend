@@ -57,7 +57,7 @@ class DokumenPersyaratanResponse(DokumenPersyaratanBase):
 
 class PengajuanLayananBase(BaseModel):
     mahasiswa_nim: str
-    jenis_layanan_id: str
+    jenis_layanan_id: int
     status: Optional[str] = "Menunggu"
     catatan_admin: Optional[str] = None
 

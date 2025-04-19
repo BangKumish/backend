@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 
 from sqlalchemy.orm import Session
@@ -139,3 +139,20 @@ def create_lampiran_route(data: LampiranPengajuanCreate, db: Session = Depends(g
 @router.get("/lampiran/{pengajuan_id}", response_model=list[LampiranPengajuanResponse])
 def get_lampiran_by_pengajuan_route(pengajuan_id: int, db: Session = Depends(get_db)):
     return get_lampiran_by_pengajuan(db, pengajuan_id)
+
+
+# ============================
+# UPLOAD LAMPIRAN
+# ============================
+
+
+@router.post("/upload/{pengajuan_id}")
+def upload_lampiran(pengajuan_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    file_url = upload_to_supabase(file)
+    metadata = save_uploaded_file_metadata(db, file.filename, file_url, pengajuan_id)
+    return {
+        "message": "Upload Berhasil",
+        "url": file_url,
+        "metadata": metadata
+    }
+
