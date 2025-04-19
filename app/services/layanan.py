@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
-from app.models.layanan import Layanan
-from app.schemas.layanan import LayananSchema
+
+from app.models.layanan import *
+from app.schemas.layanan import *
 
 def create_layanan(db: Session, layanan: LayananSchema):
     db_layanan = Layanan(
@@ -19,3 +20,104 @@ def get_layanan(db: Session, layanan_id: str):
 
 def get_all_layanan(db: Session):
     return db.query(Layanan).order_by(Layanan.layanan_id.asc()).all()
+
+
+# ============================
+# JENIS LAYANAN
+# ============================
+
+
+def create_jenis_layanan(db: Session, data: JenisLayananCreate):
+    jenis = JenisLayanan(**data.model_dump())
+    db.add(jenis)
+    db.commit()
+    db.refresh(jenis)
+    return jenis
+
+def get_all_jenis_layanan(db: Session):
+    return db.query(JenisLayanan).all()
+
+def get_jenis_layanan_by_id(db: Session, id: int):
+    return db.query(JenisLayanan).filter(JenisLayanan.id == id).first()
+
+def update_jenis_layanan(db: Session, id: int, data: JenisLayananCreate):
+    jenis = get_jenis_layanan_by_id(db, id)
+    if not jenis:
+        return None
+    for key, value in data.model_dump().items():
+        setattr(jenis, key, value)
+    db.commit()
+    db.refresh(jenis)
+    return jenis
+
+def delete_jenis_layanan(db: Session, id: int):
+    jenis = get_jenis_layanan_by_id(db, id)
+    if not jenis:
+        return None
+    db.delete(jenis)
+    db.commit()
+    return jenis
+
+
+# ============================
+# DOKUMEN PERSYARATAN
+# ============================
+
+
+def create_dokumen(db: Session, data: DokumenPersyaratanCreate):
+    dok = DokumenPersyaratan(**data.model_dump())
+    db.add(dok)
+    db.commit()
+    db.refresh(dok)
+    return dok
+
+def get_dokumen_by_jenis_layanan(db: Session, jenis_id: int):
+    return db.query(DokumenPersyaratan).filter(DokumenPersyaratan.jenis_layanan_id == jenis_id).all()
+
+def delete_dokumen(db: Session, id: int):
+    dok = db.query(DokumenPersyaratan).filter(DokumenPersyaratan.id == id).first()
+    if dok:
+        db.delete(dok)
+        db.commit()
+    return dok
+
+
+# ============================
+# PENGAJUAN LAYANAN
+# ============================
+
+
+def create_pengajuan(db: Session, data: PengajuanLayananCreate):
+    pengajuan = PengajuanLayanan(**data.model_dump())
+    db.add(pengajuan)
+    db.commit()
+    db.refresh(pengajuan)
+    return pengajuan
+
+def get_pengajuan_by_mahasiswa(db: Session, nim: str):
+    return db.query(PengajuanLayanan).filter(PengajuanLayanan.mahasiswa_nim == nim).all()
+
+def update_status_pengajuan(db: Session, id: int, status: str, catatan: str = ""):
+    pengajuan = db.query(PengajuanLayanan).filter(PengajuanLayanan.id == id).first()
+    if pengajuan:
+        pengajuan.status = status
+        pengajuan.catatan_admin = catatan
+        db.commit()
+        db.refresh(pengajuan)
+    return pengajuan
+
+
+# ============================
+# LAMPIRAN PENGAJUAN
+# ============================
+
+
+def create_lampiran(db: Session, data: LampiranPengajuanCreate):
+    lampiran = LampiranPengajuan(**data.model_dump())
+    db.add(lampiran)
+    db.commit()
+    db.refresh(lampiran)
+    return lampiran
+
+def get_lampiran_by_pengajuan(db: Session, pengajuan_id: int):
+    return db.query(LampiranPengajuan).filter(LampiranPengajuan.pengajuan_id == pengajuan_id).all()

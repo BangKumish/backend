@@ -49,7 +49,8 @@
             {
                 "id": "ID Waktu Bimbingan",
                 "tanggal": "Tanggal Bimbingan",
-                "waktu": "Waktu Bimbingan",
+                "waktu mulai": "Waktu Mulai Bimbingan",
+                "waktu selesai": "Waktu Selesai Bimbingan",
                 "jumlah_bimbingan": "Jumlah Bimbingan",
                 
                 "antrian_bimbingan": {
@@ -74,5 +75,28 @@
                 "jumlah_bimbingan": "Jumlah Bimbingan"
             }
         ]
+    },
+    {
+        "Daftar Mahasiswa":[
+            {
+                "id": "ID Relation MahasiswaDosen",
+                "nama": "Nama Mahasiswa from Mahasiswa.Nama",
+                "nim": "NIM Mahasiswa",
+                "role": "Role MahasiswaDosen"
+            },
+            {
+                "id": "ID Relation MahasiswaDosen",
+                "nama": "Nama Mahasiswa from Mahasiswa.Nama",
+                "nim": "NIM Mahasiswa",
+                "role": "Role MahasiswaDosen"
+            }
+        ]
+    },
+    {
+        "layanan_id": "",
+        "layanan_jenis": "", 
+        "layanan_file" : "",
+        "layanan_status" :""
+
     }
 ]

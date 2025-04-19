@@ -20,6 +20,5 @@ class Mahasiswa(Base):
     created_at = Column(DateTime, default=datetime.now(), nullable=False)
     update_at = Column(DateTime, onupdate=datetime.now(), nullable=False)
 
-    waktu_bimbingan: Mapped[List[WaktuBimbingan]] = Relationship(back_populates="mahasiswa")
-    
+    antrian_bimbingan = Relationship("AntrianBimbingan", back_populates="mahasiswa")
     dosen_relation = Relationship("MahasiswaDosen", back_populates="mahasiswa")

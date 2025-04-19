@@ -28,9 +28,23 @@ def get_all_relation(db: Session = Depends(get_db)):
 def get_all_relation_by_mahasiswa(nim:str, db: Session = Depends(get_db)):
     return get_relation_by_mahasiswa(db, nim)
 
-@router.get("/dosen/{alias}", response_model=list[MahasiswaDosenSchema])
+@router.get("/dosen/{alias}")
 def get_all_relation_by_dosen(alias:str, db: Session = Depends(get_db)):
-    return get_relation_by_dosen(db, alias)
+    relations = get_relation_by_dosen(db, alias)
+
+    daftar_mahasiswa = []
+    for relation in relations:
+        if relation.mahasiswa:
+            daftar_mahasiswa.append({
+                "id": relation.id,
+                "nama": relation.mahasiswa.nama,
+                "nim": relation.mahasiswa.nim,
+                "role": relation.role
+            })
+            
+    return {
+        "Daftar Mahasiswa": daftar_mahasiswa
+        }
 
 @router.put("/{id}", response_model=list[MahasiswaDosenSchema])
 def edit_relation(

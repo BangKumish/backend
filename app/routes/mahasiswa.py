@@ -54,8 +54,6 @@ def get_mahasiswa_detail(nim: str, db: Session = Depends(get_db)):
             detail="Mahasiswa not Found"
         )
 
-    from app.routes.mahasiswa_dosen import get_all_relation_by_mahasiswa
-
     dosen_roles = {
         "Dosen Wali": None,
         "Dosen KP": None,

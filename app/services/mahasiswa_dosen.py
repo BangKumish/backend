@@ -1,7 +1,11 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.orm import joinedload
+
 from app.models.mahasiswa_dosen import MahasiswaDosen
 from app.models.mahasiswa import Mahasiswa
+
 from app.schemas.mahasiswa_dosen import *
+
 from fastapi import HTTPException
 
 ROLE_MAPPING = {
@@ -49,7 +53,12 @@ def get_relation_by_mahasiswa(db: Session, nim: str):
     return db.query(MahasiswaDosen).filter(MahasiswaDosen.mahasiswa_nim == nim).all()
 
 def get_relation_by_dosen(db: Session, alias: str):
-    return db.query(MahasiswaDosen).filter(MahasiswaDosen.dosen_alias == alias).all()
+    return (
+        db.query(MahasiswaDosen)
+        .options(joinedload(MahasiswaDosen.mahasiswa))
+        .filter(MahasiswaDosen.dosen_alias == alias)
+        .all()
+    )
 
 def update_relation(db: Session, id:int, udpated: MahasiswaDosenCreateSchema):
     relation = db.query(MahasiswaDosen).filter(MahasiswaDosen.id == id).first()

@@ -12,6 +12,7 @@ from datetime import datetime
 class Dosen(Base):
     __tablename__ = "dosen"
 
+    alias = Column(String, unique=True, nullable=False, primary_key=True)
     nomor_induk = Column(String)
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
@@ -20,8 +21,7 @@ class Dosen(Base):
     ketersediaan_bimbingan = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.now(), nullable=False)
     update_at = Column(DateTime, onupdate=datetime.now(), nullable=False)
-    alias = Column(String, unique=True, nullable=False, primary_key=True)
 
-    waktu_bimbingan: Mapped[List[WaktuBimbingan]] = Relationship(back_populates="dosen")
-    
+    waktu_bimbingan = Relationship("WaktuBimbingan", back_populates="dosen")
+    antrian_bimbingan = Relationship("AntrianBimbingan", back_populates="dosen")
     mahasiswa_relation = Relationship('MahasiswaDosen', back_populates="dosen")

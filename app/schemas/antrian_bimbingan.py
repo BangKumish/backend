@@ -6,3 +6,11 @@ class AntrianBimbinganSchema(BaseModel):
     nomor_induk: str
     status_antrian: str = "Menunggu"
     waktu_antrian: datetime
+
+    class Config:
+        orm_mode = True
+
+class AmbilAntrianResponse(BaseModel):
+    message: str
+    posisi: int
+    antrian: AntrianBimbinganSchema
