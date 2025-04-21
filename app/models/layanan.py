@@ -1,9 +1,12 @@
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Relationship
 
 from datetime import datetime
 
 from app.config import Base
+
+import uuid
 
 
 class Layanan(Base):
@@ -43,7 +46,8 @@ class DokumenPersyaratan(Base):
 class PengajuanLayanan(Base):
     __tablename__ = "pengajuan_layanan"
 
-    id = Column(Integer, primary_key=True, index=True)
+    # id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     mahasiswa_nim = Column(String, ForeignKey("mahasiswa.nim"), nullable=False)
     jenis_layanan_id = Column(String, ForeignKey("jenis_layanan.id"), nullable=False)
     status = Column(String, default="Menunggu")
@@ -57,7 +61,8 @@ class PengajuanLayanan(Base):
 class LampiranPengajuan(Base):
     __tablename__ = "lampiran_pengajuan"
 
-    id = Column(Integer, primary_key=True, index=True)
+    # id = Column(Integer, primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     pengajuan_id = Column(Integer, ForeignKey("pengajuan_layanan.id"), nullable=False)
     nama_dokumen = Column(String, nullable=False)
     file_url = Column(String, nullable=False)

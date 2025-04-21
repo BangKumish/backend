@@ -46,8 +46,8 @@ def create_jenis_layanan_route(data: JenisLayananCreate, db: Session = Depends(g
 def get_all_jenis_layanan_route(db: Session = Depends(get_db)):
     return get_all_jenis_layanan(db)
 
-@router.get("/jenis/{id}", response_model=list[JenisLayananResponse])
-def get_jenis_layanan_by_id(id: int, db: Session = Depends(get_db)):
+@router.get("/jenis/{id}", response_model=JenisLayananResponse)
+def get_jenis_layanan_by_id_route(id: int, db: Session = Depends(get_db)):
     jenis = get_jenis_layanan_by_id(db, id)
     if not jenis:
         raise HTTPException(
@@ -147,7 +147,7 @@ def get_lampiran_by_pengajuan_route(pengajuan_id: int, db: Session = Depends(get
 
 
 @router.post("/upload/{pengajuan_id}")
-def upload_lampiran(pengajuan_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+def upload_lampiran(pengajuan_id: UUID, file: UploadFile = File(...), db: Session = Depends(get_db)):
     file_url = upload_to_supabase(file)
     metadata = save_uploaded_file_metadata(db, file.filename, file_url, pengajuan_id)
     return {

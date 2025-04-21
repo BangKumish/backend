@@ -8,6 +8,8 @@ from app.utils.supabase_client import supabase
 
 from mimetypes import guess_type
 from datetime import datetime
+from uuid import UUID
+
 import uuid
 import os
 
@@ -105,7 +107,7 @@ def create_pengajuan(db: Session, data: PengajuanLayananCreate):
 def get_pengajuan_by_mahasiswa(db: Session, nim: str):
     return db.query(PengajuanLayanan).filter(PengajuanLayanan.mahasiswa_nim == nim).all()
 
-def update_status_pengajuan(db: Session, id: int, status: str, catatan: str = ""):
+def update_status_pengajuan(db: Session, id: UUID, status: str, catatan: str = ""):
     pengajuan = db.query(PengajuanLayanan).filter(PengajuanLayanan.id == id).first()
     if pengajuan:
         pengajuan.status = status
@@ -127,7 +129,7 @@ def create_lampiran(db: Session, data: LampiranPengajuanCreate):
     db.refresh(lampiran)
     return lampiran
 
-def get_lampiran_by_pengajuan(db: Session, pengajuan_id: int):
+def get_lampiran_by_pengajuan(db: Session, pengajuan_id: UUID):
     return db.query(LampiranPengajuan).filter(LampiranPengajuan.pengajuan_id == pengajuan_id).all()
 
 
@@ -145,13 +147,16 @@ def upload_to_supabase(file: UploadFile) -> str:
     content_type = guess_type(file.filename)[0] or "application/octet-stream"
 
     file_bytes = file.file.read()
+    
     supabase.storage.from_(BUCKET_NAME).upload(
-        file = file_bytes,
         path = unique_filename,
+        file = file_bytes,
         file_options={
-            "content-type": content_type    
+            "content-type": content_type,
+            "cache-control": "3600"
         }
     )
+
     public_url = supabase.storage.from_(BUCKET_NAME).get_public_url(unique_filename)
     return public_url
 

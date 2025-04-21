@@ -1,5 +1,7 @@
-from pydantic import BaseModel, Field
-from typing import Optional, List
+from pydantic import BaseModel
+from typing import Optional
+from uuid import UUID
+
 from datetime import datetime
 
 class LayananSchema(BaseModel):
@@ -65,7 +67,7 @@ class PengajuanLayananCreate(PengajuanLayananBase):
     pass
 
 class PengajuanLayananResponse(PengajuanLayananBase):
-    id: int
+    id: UUID
     created_at: datetime
 
     class Config:
@@ -85,8 +87,8 @@ class LampiranPengajuanCreate(LampiranPengajuanBase):
     pengajuan_id: int
 
 class LampiranPengajuanResponse(LampiranPengajuanBase):
-    id: int
-    pengajuan_id: int
+    id: UUID
+    pengajuan_id: UUID
     uploaded_at: datetime
 
     class Config:
