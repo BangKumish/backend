@@ -1,7 +1,9 @@
 from pydantic import BaseModel
 from typing import Optional
+from uuid import UUID
 
 class MahasiswaSchema(BaseModel):
+    id: UUID
     nim: str
     nama: str
     email: str
@@ -17,3 +19,16 @@ class MahasiswaUpdateSchema(BaseModel):
     email: Optional[str] = None
     password: Optional[str] = None
     topik_penelitian: Optional[str] = None
+
+class MahasiswaCreateSchema(BaseModel):
+    nim: str
+    nama: str
+    email: str
+    topik_penelitian: str
+
+class MahasiswaResponseSchema(BaseModel):
+    nim: str
+    nama: str
+    email: str
+    password: str
+    topik_penelitian: str

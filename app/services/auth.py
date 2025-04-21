@@ -29,13 +29,95 @@ def authenticate_user(db: Session, email:str, password:str):
     
     return user
 
-# Login Function
-# def login_user(db: Session, email:str, password:str):
-#     user = authenticate_user(db, email, password)
-#     if not user:
-#         raise HTTPException(status_code=400, detail="Invalid email or password")
-#     access_token = create_access_token({"sub": user.email, "role": user.__tablename__}, timedelta(minutes=60))
-#     return {"access_token": access_token, "token_type": "bearer", "role": user.__tablename__}
+def login_user(db: Session, email: str, password: str):
+    user = db.query(User).filter(User.email == email).first()
+    userID = user.user_id
+
+    if not user or not verify_password(password, user.password):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid Credentials"
+        )
+    
+    token = create_access_token(
+        data={
+            "sub": str(userID),
+            "role": user.role
+        },
+        expires_delta=timedelta(minutes=60)
+    )
+
+    response_data = {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "user_id": str(userID),
+            "email": user.email,
+            "role": user.role,
+            "profile": {}
+        }
+    }
+
+    if user.role == "admin":
+        admin = db.query(Admin).filter(Admin.id == userID).first()
+        if admin:
+            response_data["user"]["profile"] = {
+                "name": admin.name
+            }
+
+    elif user.role == "dosen":
+        dosen = db.query(Dosen).filter(Dosen.id == userID).first()
+        if dosen:
+            response_data["user"]["profile"] = {
+                "name": dosen.name,
+                "inisial": dosen.alias
+            }
+
+    elif user.role == "mahasiswa":
+        mahasiswa = db.query(Mahasiswa).filter(Mahasiswa.id == userID).first()
+        if mahasiswa:
+            response_data["user"]["profile"] = {
+                "name": mahasiswa.nama,
+                "nim": mahasiswa.nim
+            }
+
+    return response_data
+
+
+    # if user.role == "mahasiswa":
+    #     mahasiswa = db.query(Mahasiswa).filter(Mahasiswa.id == user.id).first()
+    #     if mahasiswa:
+    #         response_data["mahasiswa"] = {
+    #             "nim": mahasiswa.nim,
+    #             "name": mahasiswa.nama,
+    #             "topik_penelitian": mahasiswa.topik_penelitian
+    #         }
+    # elif user.role == "dosen":
+    #     dosen = db.query(Dosen).filter(Dosen) 
+
+    
+
+
+    # user = db.query(User).filter(User.email == email).first()
+    # if not user or not verify_password(password, user.password):
+    #     raise HTTPException(
+    #         status_code=401,
+    #         detail="Invalid Credentials"
+    #     )
+    
+    # token = create_access_token(
+    #     data={
+    #         "sub": user.email,
+    #         "role": user.role
+    #     },
+    #     expires_delta=timedelta(minutes=60)
+    # )
+
+    # return {
+    #     "access_token": token,
+    #     "token_type": "bearer",
+    #     "role": user.role
+    # }
 
 def register_user(db: Session, user_data: RegisterUser):
     existing_user = db.query(User).filter(User.email == user_data.email).first()
@@ -55,28 +137,6 @@ def register_user(db: Session, user_data: RegisterUser):
     db.commit()
     db.refresh(user)
     return user
-
-def login_user(db: Session, email: str, password: str):
-    user = db.query(User).filter(User.email == email).first()
-    if not user or not verify_password(password, user.password):
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid Credentials"
-        )
-    
-    token = create_access_token(
-        data={
-            "sub": user.email,
-            "role": user.role
-        },
-        expires_delta=timedelta(minutes=60)
-    )
-
-    return {
-        "access_token": token,
-        "token_type": "bearer",
-        "role": user.role
-    }
 
 def update_profile(user_id: str, profile_date: UpdateProfile, db: Session):
     user = db.query(User).filter(User.id == user_id).first()

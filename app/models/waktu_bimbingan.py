@@ -8,6 +8,7 @@ class WaktuBimbingan(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     nomor_induk = Column(String, ForeignKey('dosen.alias'), nullable=False)
+    jumlah_antrian = Column(Integer, nullable=False, default=5)
     tanggal = Column(Date, nullable=False)
     waktu_mulai = Column(Time, nullable=False)
     waktu_selesai = Column(Time, nullable=False)

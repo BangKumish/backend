@@ -1,20 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends
 
 from sqlalchemy.orm import Session
 
-from app.config import SessionLocal
 from app.schemas.mahasiswa_dosen import *
 from app.services.mahasiswa_dosen import *
 
-router = APIRouter(prefix="/relation", tags=["Mahasiswa-Dosen"])
+from app.config import get_db
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+router = APIRouter(prefix="/relation", tags=["Mahasiswa-Dosen"])
 
 @router.post("/", response_model=MahasiswaDosenSchema)
 def create_relation(relation: MahasiswaDosenCreateSchema, db: Session = Depends(get_db)):

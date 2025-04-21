@@ -1,13 +1,23 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import Integer
+from sqlalchemy import String 
+from sqlalchemy.orm import Relationship
+from sqlalchemy.dialects.postgresql import UUID
+
 from app.config import Base
+
 from datetime import datetime
+import uuid
 
 class Admin(Base):
     __tablename__ = "admin"
 
-    account_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, unique=True, default=uuid.uuid4, index=True)    
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.now(), nullable=False)
     update_at = Column(DateTime, onupdate=datetime.now(), nullable=False)
+
+    # user = Relationship("User", back_populates="admin")

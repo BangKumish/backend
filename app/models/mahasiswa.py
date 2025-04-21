@@ -1,24 +1,29 @@
-from typing import List
-
-from sqlalchemy import Column, String, DateTime
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import String 
 from sqlalchemy.orm import Relationship
-from sqlalchemy.orm import Mapped
+from sqlalchemy.dialects.postgresql import UUID
 
 from app.config import Base
-from app.models.waktu_bimbingan import WaktuBimbingan
 
 from datetime import datetime
+import uuid
 
 class Mahasiswa(Base):
     __tablename__ = "mahasiswa"
+
+    id = Column(UUID(as_uuid=True), unique=True, default=uuid.uuid4, index=True)
 
     nim = Column(String, primary_key=True)
     nama = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
     topik_penelitian = Column(String)
+
     created_at = Column(DateTime, default=datetime.now(), nullable=False)
     update_at = Column(DateTime, onupdate=datetime.now(), nullable=False)
 
+    # user = Relationship("User", back_populates="mahasiswa")
     antrian_bimbingan = Relationship("AntrianBimbingan", back_populates="mahasiswa")
     dosen_relation = Relationship("MahasiswaDosen", back_populates="mahasiswa")

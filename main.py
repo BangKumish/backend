@@ -16,16 +16,20 @@ app.add_middleware(
 )
 
 # Register API Routes
+app.include_router(auth.router)
+
+app.include_router(admin.router)
 app.include_router(dosen.router)
 app.include_router(mahasiswa.router)
+app.include_router(mahasiswa_dosen.router)
+
 app.include_router(waktu_bimbingan.router)
 app.include_router(antrian_bimbingan.router)
-app.include_router(admin.router)
-app.include_router(auth.router)
-app.include_router(news.router)
-app.include_router(file.router)
+
 app.include_router(layanan.router)
-app.include_router(mahasiswa_dosen.router)
+
+# app.include_router(news.router)
+# app.include_router(file.router)
 
 @app.get("/")
 def read_root():

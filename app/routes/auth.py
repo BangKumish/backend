@@ -6,14 +6,9 @@ from app.services.auth import *
 from app.schemas.user import *
 from app.utils.dependencies import *
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+from app.config import get_db
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/login")
 def login(login_data: LoginUser, db: Session = Depends(get_db)):
@@ -22,11 +17,3 @@ def login(login_data: LoginUser, db: Session = Depends(get_db)):
 @router.post("/register")
 def register(user_data: RegisterUser, db: Session = Depends(get_db)):
     return register_user(db, user_data)
-
-@router.get("/me", response_model=UserResponse)
-def get_profile(current_user = Depends(get_current_user)):
-    return current_user()
-
-@router.put("/me", response_model=UserResponse)
-def update_my_profile(profile_data: UpdateProfile, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
-    return update_profile(current_user.id, profile_data, db)

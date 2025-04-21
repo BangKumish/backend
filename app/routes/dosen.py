@@ -3,28 +3,21 @@ from fastapi.responses import JSONResponse
 
 from sqlalchemy.orm import Session
 
-from app.config import SessionLocal
+from app.config import get_db
 
-from app.services.dosen import create_dosen, get_dosen, get_all_dosen, update_dosen
-from app.services.waktu_bimbingan import get_waktuBimbingan_from_dosen
+from app.services.dosen import *
+from app.services.waktu_bimbingan import *
 
-from app.schemas.dosen import DosenSchema, DosenUpdateSchema
+from app.schemas.dosen import *
 
 from app.utils.dependencies import get_current_user
 
 router = APIRouter(prefix="/dosen", tags=["Dosen"])
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 @router.post("/", response_model=DosenSchema)
-def create_dosen_route(dosen: DosenSchema, db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
-    if user["role"] != "admin":
-        raise HTTPException(status_code=403, detail="Only Admin can Create Dosen") 
+def create_dosen_route(dosen: DosenCreateSchema, db: Session = Depends(get_db), user: dict = Depends(get_current_user)):
+    # if user["role"] != "admin":
+    #     raise HTTPException(status_code=403, detail="Only Admin can Create Dosen") 
     return create_dosen(db, dosen)
 
 @router.get("/all", response_model=list[DosenSchema])
@@ -42,7 +35,7 @@ def get_dosen_route(nomor_induk: str, db: Session = Depends(get_db)):
     
     return JSONResponse (content={
         "dosen": {
-            "id": data.nomor_induk,
+            "nomor_induk": data.nomor_induk,
             "name": data.name,
             "alias": data.alias,
             "email": data.email,
@@ -66,3 +59,11 @@ def update_dosen_route(nomor_induk: str, dosen_data: DosenUpdateSchema, db: Sess
     if not dosen:
         raise HTTPException(status_code = 404, detail = "Dosen Tidak Ditemukan")
     return {"Message": "Dosen Telah diUpdate", "data":dosen}
+
+@router.get("/admin/{dosen_id}")
+def get_dosen_detail_route(dosen_id: UUID, db: Session = Depends(get_db)):
+    return get_detail_dosen(db, dosen_id)
+
+@router.delete("/{dosen_id}")
+def delete_dosen_route(dosen_id: UUID, db: Session = Depends(get_db)):
+    return delete_dosen(db, dosen_id)

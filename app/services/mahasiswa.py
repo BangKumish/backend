@@ -3,16 +3,20 @@ from sqlalchemy.orm import joinedload
 
 from app.schemas.mahasiswa import *
 
-from app.models.dosen import Dosen
 from app.models.mahasiswa import Mahasiswa
+from app.models.user import User
+
 from app.models.mahasiswa_dosen import MahasiswaDosen
 
 from app.utils.security import hash_password
+import uuid
 
 def create_mahasiswa(db: Session, mahasiswa: MahasiswaSchema):
     hashed_password = hash_password(mahasiswa.password) 
-
+    mahasiswa_id = uuid.uuid4()
+    
     db_mahasiswa = Mahasiswa(
+        id=mahasiswa_id,
         nim=mahasiswa.nim,
         nama=mahasiswa.nama,
         email=mahasiswa.email,
@@ -22,6 +26,18 @@ def create_mahasiswa(db: Session, mahasiswa: MahasiswaSchema):
     db.add(db_mahasiswa)
     db.commit()
     db.refresh(db_mahasiswa)
+
+    db_user = User(
+        user_id = mahasiswa_id,
+        email = mahasiswa.email,
+        password = hashed_password,
+        role = "mahasiswa"
+    )
+
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+
     return db_mahasiswa
 
 def get_mahasiswa(db: Session, nim: str):
@@ -29,6 +45,9 @@ def get_mahasiswa(db: Session, nim: str):
 
 def get_all_mahasiswa(db: Session):
     return db.query(Mahasiswa).order_by(Mahasiswa.nim.asc()).all()
+
+def get_detail_mahasiswa(db: Session, id: UUID):
+    return db.query(Mahasiswa).filter(Mahasiswa.id == id).first()
 
 def get_mahasiswa_detail(db: Session, nim:str):
     return (

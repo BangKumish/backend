@@ -4,17 +4,16 @@ from datetime import datetime
 from uuid import UUID
 
 class UserBase(BaseModel):
-    email: EmailStr
+    email: str
     role: Literal["admin", "dosen", "mahasiswa"]
 
     model_config = ConfigDict(from_attributes=True)
 
 class RegisterUser(UserBase):
     password: str
-    full_name: Optional[str] = None
 
 class LoginUser(BaseModel):
-    email: EmailStr
+    email: str
     password: str
 
 class UpdateProfile(BaseModel):
@@ -31,13 +30,13 @@ class AuthResponse(BaseModel):
 
 class UserResponse(UserBase):
     id: UUID
-    email: EmailStr
+    email: str
     role: str
-    full_name: Optional[str]
-    avatar_url: Optional[str]
-    ktm_url: Optional[str]
-    is_active: bool
-    email_verified: bool
-    created_at: datetime
+    # full_name: Optional[str]
+    # avatar_url: Optional[str]
+    # ktm_url: Optional[str]
+    # is_active: bool
+    # email_verified: bool
+    # created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

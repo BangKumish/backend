@@ -1,22 +1,19 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.config import SessionLocal
+
 from app.services.admin import create_admin, get_admin_by_id
-from app.schemas.admin import AdminSchema
+from app.schemas.admin import *
+
+from uuid import UUID
+
+from app.config import get_db
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 @router.post("/", response_model=AdminSchema)
-def create_admin_route(admin: AdminSchema, db: Session = Depends(get_db)):
+def create_admin_route(admin: AdminCreateSchema, db: Session = Depends(get_db)):
     return create_admin(db, admin)
 
-@router.get("/{account_id}", response_model=AdminSchema)
-def get_admin_route(account_id: int, db: Session = Depends(get_db)):
-    return get_admin_by_id(db, account_id)
+@router.get("/{admin_id}", response_model=AdminSchema)
+def get_admin_route(admin_id: UUID, db: Session = Depends(get_db)):
+    return get_admin_by_id(db, admin_id)

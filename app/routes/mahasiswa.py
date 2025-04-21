@@ -2,41 +2,30 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
 from sqlalchemy.orm import Session
+from uuid import UUID
 
-from app.config import SessionLocal
+from app.services.mahasiswa import *
+from app.schemas.mahasiswa import *
 
-from app.services.mahasiswa import create_mahasiswa
-from app.services.mahasiswa import get_all_mahasiswa
-from app.services.mahasiswa import get_mahasiswa
-from app.services.mahasiswa import update_mahasiswa
-
-from app.services.waktu_bimbingan import get_waktuBimbingan_from_mahasiswa
-
-from app.schemas.mahasiswa import MahasiswaSchema, MahasiswaUpdateSchema
-
+from app.config import get_db
 
 router = APIRouter(prefix="/mahasiswa", tags=["Mahasiswa"])
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-@router.post("/", response_model=MahasiswaSchema)
-def create_mahasiswa_route(mahasiswa: MahasiswaSchema, db: Session = Depends(get_db)):
+@router.post("/", response_model=MahasiswaCreateSchema)
+def create_mahasiswa_route(mahasiswa: MahasiswaResponseSchema, db: Session = Depends(get_db)):
     return create_mahasiswa(db, mahasiswa)
 
-@router.get("/all", response_model=list[MahasiswaSchema])
+@router.get("/all", response_model=list[MahasiswaCreateSchema])
 def get_all_mahasiswa_route(db: Session = Depends(get_db)):
     return get_all_mahasiswa(db)
 
-@router.get("/{nim}", response_model=MahasiswaSchema)
+@router.get("/{nim}", response_model=MahasiswaCreateSchema)
 def get_mahasiswa_route(nim: str, db: Session = Depends(get_db)):
-    data = get_mahasiswa(db, nim)
-    if not data:
-        raise HTTPException(status_code=404, detail="Data not Found")
+    return get_mahasiswa(db, nim)
+
+@router.get("/admin/{id}", response_model=MahasiswaSchema)
+def get_detail_mahasiswa_route(id: UUID, db: Session = Depends(get_db)):
+    return get_detail_mahasiswa(db, id)
 
 @router.put("/{nim}")
 def update_mahasiswa_route(nim: str, update_data: MahasiswaUpdateSchema, db: Session = Depends(get_db)):

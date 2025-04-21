@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.models.layanan import *
 from app.schemas.layanan import *
-from app.utils.supabase_client import supabase
+from app.utils.supabase_client import *
 
 from mimetypes import guess_type
 from datetime import datetime
@@ -136,10 +136,6 @@ def get_lampiran_by_pengajuan(db: Session, pengajuan_id: UUID):
 # ============================
 # UPLOAD LAMPIRAN 
 # ============================
-
-from dotenv import load_dotenv
-load_dotenv()
-BUCKET_NAME = os.getenv("SUPABASE_BUCKET")
 
 def upload_to_supabase(file: UploadFile) -> str:
     file_ext = file.filename.split('.')[-1]

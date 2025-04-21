@@ -1,17 +1,12 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.config import SessionLocal
+
 from app.services.waktu_bimbingan import create_waktuBimbingan, get_waktuBimbingan, get_waktuBimbingan_from_dosen, get_waktuBimbingan_from_mahasiswa
 from app.schemas.waktu_bimbingan import WaktuBimbinganSchema
 
-router = APIRouter(prefix="/waktu_bimbingan", tags=["Waktu Bimbingan"])
+from app.config import get_db
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+router = APIRouter(prefix="/waktu_bimbingan", tags=["Waktu Bimbingan"])
 
 @router.post("/", response_model=WaktuBimbinganSchema)
 def create_waktu_bimbingan_route(waktuBimbingan: WaktuBimbinganSchema, db: Session = Depends(get_db)):

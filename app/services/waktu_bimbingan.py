@@ -5,7 +5,7 @@ from app.schemas.waktu_bimbingan import WaktuBimbinganSchema
 def create_waktuBimbingan(db: Session, waktuBimbinganSchema: WaktuBimbinganSchema):
     db_waktuBimbingan = WaktuBimbingan(
         nomor_induk = waktuBimbinganSchema.nomor_induk,
-        nim = waktuBimbinganSchema.nim,
+        jumlah_antrian = waktuBimbinganSchema.jumlah_antrian,
         tanggal = waktuBimbinganSchema.tanggal,
         waktu_mulai = waktuBimbinganSchema.waktu_mulai,
         waktu_selesai = waktuBimbinganSchema.waktu_selesai
