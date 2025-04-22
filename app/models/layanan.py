@@ -52,6 +52,7 @@ class PengajuanLayanan(Base):
     jenis_layanan_id = Column(String, ForeignKey("jenis_layanan.id"), nullable=False)
     status = Column(String, default="Menunggu")
     catatan_admin = Column(Text, nullable=True)
+    jadwal_pengambilan = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.now())
 
     jenis_layanan = Relationship("JenisLayanan", back_populates="pengajuan")

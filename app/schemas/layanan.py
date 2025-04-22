@@ -62,9 +62,15 @@ class PengajuanLayananBase(BaseModel):
     jenis_layanan_id: int
     status: Optional[str] = "Menunggu"
     catatan_admin: Optional[str] = None
+    jadwal_pengambilan: Optional[datetime] = None
 
 class PengajuanLayananCreate(PengajuanLayananBase):
     pass
+
+class PengajuanUpdateSchema(BaseModel):
+    status: str
+    catatan_admin: Optional[str] = ""
+    jadwal_pengambilan: Optional[datetime] = None
 
 class PengajuanLayananResponse(PengajuanLayananBase):
     id: UUID

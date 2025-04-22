@@ -265,5 +265,8 @@ pyrightconfig.json
 
 # etc
 .vscode/
+private_key.pem
+public_key.pem
+app/routes/ws.py
 
 # End of https://www.toptal.com/developers/gitignore/api/flask,python

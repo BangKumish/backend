@@ -21,7 +21,6 @@ def create_mahasiswa(db: Session, mahasiswa: MahasiswaSchema):
         nama=mahasiswa.nama,
         email=mahasiswa.email,
         password=hashed_password,
-        topik_penelitian=mahasiswa.topik_penelitian
     )
     db.add(db_mahasiswa)
     db.commit()

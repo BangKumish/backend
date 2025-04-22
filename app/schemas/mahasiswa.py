@@ -24,11 +24,9 @@ class MahasiswaCreateSchema(BaseModel):
     nim: str
     nama: str
     email: str
-    topik_penelitian: str
 
 class MahasiswaResponseSchema(BaseModel):
     nim: str
     nama: str
     email: str
     password: str
-    topik_penelitian: str

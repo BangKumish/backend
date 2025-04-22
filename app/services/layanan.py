@@ -107,11 +107,12 @@ def create_pengajuan(db: Session, data: PengajuanLayananCreate):
 def get_pengajuan_by_mahasiswa(db: Session, nim: str):
     return db.query(PengajuanLayanan).filter(PengajuanLayanan.mahasiswa_nim == nim).all()
 
-def update_status_pengajuan(db: Session, id: UUID, status: str, catatan: str = ""):
+def update_status_pengajuan(db: Session, id: UUID, data: PengajuanUpdateSchema):
     pengajuan = db.query(PengajuanLayanan).filter(PengajuanLayanan.id == id).first()
     if pengajuan:
-        pengajuan.status = status
-        pengajuan.catatan_admin = catatan
+        pengajuan.status = data.status
+        pengajuan.catatan_admin = data.catatan_admin
+        pengajuan.jadwal_pengambilan = data.jadwal_pengambilan
         db.commit()
         db.refresh(pengajuan)
     return pengajuan
