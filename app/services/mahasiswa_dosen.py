@@ -60,18 +60,43 @@ def get_relation_by_dosen(db: Session, alias: str):
         .all()
     )
 
-def update_relation(db: Session, id:int, udpated: MahasiswaDosenCreateSchema):
+def update_relation(db: Session, id: int, updated: MahasiswaDosenUpdateSchema):
     relation = db.query(MahasiswaDosen).filter(MahasiswaDosen.id == id).first()
     if not relation:
-        raise HTTPException(
-            status_code=404,
-            detail="Relasi tidak Ditemukan"
-        )
-    for key, value in udpated.model_dump(exclude_unset=True).items():
+        raise HTTPException(status_code=404, detail="Relasi tidak Ditemukan")
+
+    update_data = updated.model_dump(exclude_unset=True)
+
+    # Handle role validation if role is updated
+    if "role" in update_data:
+        role_key = update_data["role"].lower()
+
+        if role_key not in ROLE_MAPPING:
+            raise HTTPException(status_code=400, detail="Role tidak sesuai")
+
+        role_group, max_allowed = ROLE_MAPPING[role_key]
+
+        existing_count = db.query(MahasiswaDosen).filter(
+            MahasiswaDosen.mahasiswa_nim == relation.mahasiswa_nim,
+            MahasiswaDosen.role == role_group,
+            MahasiswaDosen.id != id  # exclude current record from the count
+        ).count()
+
+        if existing_count >= max_allowed:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Maksimal {max_allowed} {role_group}"
+            )
+        
+        update_data["role"] = role_group
+
+    for key, value in update_data.items():
         setattr(relation, key, value)
+
     db.commit()
     db.refresh(relation)
     return relation
+
 
 def delete_relation_by_id(db: Session, id:int):
     relation = db.query(MahasiswaDosen).filter(MahasiswaDosen.id == id).first()

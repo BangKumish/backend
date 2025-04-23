@@ -93,13 +93,18 @@ def get_pengajuan_by_nim(mahasiswa_nim: str, db: Session = Depends(get_db)):
     return get_pengajuan_by_mahasiswa(db, mahasiswa_nim)
 
 @router.put("/pengajuan/{id}", response_model=PengajuanLayananResponse)
-def update_pengajuan_status_route(id: UUID, data: PengajuanUpdateSchema, db: Session = Depends(get_db)):
+async def update_pengajuan_status_route(id: UUID, data: PengajuanUpdateSchema, db: Session = Depends(get_db)):
     result = update_status_pengajuan(db, id, data)
     if not result:
         raise HTTPException(
             status_code=404,
             detail="Pengajuan tidak Ditemukan"
         )
+    
+    await manager.broadcast({
+        "id": str(id), "status": data.status
+    })
+
     return result
 
 

@@ -39,14 +39,10 @@ def get_all_relation_by_dosen(alias:str, db: Session = Depends(get_db)):
         "Daftar Mahasiswa": daftar_mahasiswa
         }
 
-@router.put("/{id}", response_model=list[MahasiswaDosenSchema])
-def edit_relation(
-    id:int,
-    update:MahasiswaDosenUpdateSchema,
-    db: Session = Depends(get_db)
-    ):
-    relation = update_relation(db, id)
-
+@router.put("/{id}", response_model=MahasiswaDosenSchema)
+def edit_relation(id:int, update:MahasiswaDosenUpdateSchema, db: Session = Depends(get_db)):
+    return update_relation(db, id, update)
+    
 @router.delete("/{id}", response_model=MahasiswaDosenSchema)
 def delete_relation(id:int, db: Session = Depends(get_db)):
     return delete_relation_by_id(db, id)

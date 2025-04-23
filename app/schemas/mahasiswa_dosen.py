@@ -16,4 +16,6 @@ class MahasiswaDosenCreateSchema(BaseModel):
     role: str
 
 class MahasiswaDosenUpdateSchema(BaseModel):
+    mahasiswa_nim: Optional[str]
+    dosen_alias: Optional[str]
     role: Optional[str] = None

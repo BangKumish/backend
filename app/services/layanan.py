@@ -1,15 +1,17 @@
-from fastapi import UploadFile, HTTPException
+from fastapi import UploadFile
 
 from sqlalchemy.orm import Session
 
 from app.models.layanan import *
 from app.schemas.layanan import *
 from app.utils.supabase_client import *
+from app.routes.websocket import manager 
 
 from mimetypes import guess_type
 from datetime import datetime
 from uuid import UUID
 
+import asyncio
 import uuid
 import os
 
@@ -107,14 +109,24 @@ def create_pengajuan(db: Session, data: PengajuanLayananCreate):
 def get_pengajuan_by_mahasiswa(db: Session, nim: str):
     return db.query(PengajuanLayanan).filter(PengajuanLayanan.mahasiswa_nim == nim).all()
 
-def update_status_pengajuan(db: Session, id: UUID, data: PengajuanUpdateSchema):
+async def update_status_pengajuan(db: Session, id: UUID, data: PengajuanUpdateSchema):
     pengajuan = db.query(PengajuanLayanan).filter(PengajuanLayanan.id == id).first()
+    
     if pengajuan:
         pengajuan.status = data.status
         pengajuan.catatan_admin = data.catatan_admin
         pengajuan.jadwal_pengambilan = data.jadwal_pengambilan
         db.commit()
         db.refresh(pengajuan)
+
+        asyncio.get_event_loop().create_task(manager.broadcast({
+            "id": str(pengajuan.id),
+            "status": pengajuan.status,
+            "mahasiswa_nim": pengajuan.mahasiswa_nim,
+            "catatan_admin": pengajuan.catatan_admin,
+            "jadwal_pengambilan": pengajuan.jadwal_pengambilan
+        }))
+
     return pengajuan
 
 

@@ -7,6 +7,8 @@ from app.schemas.antrian_bimbingan import *
 
 from app.models.waktu_bimbingan import WaktuBimbingan
 
+from app.routes.websocket import manager
+
 from datetime import datetime
 
 def create_antrian(db: Session, antrian: AntrianBimbinganSchema):
@@ -73,3 +75,6 @@ def ambil_antrian_bimbingan(db: Session, data: AmbilAntrianSchema):
             "waktu_id": data.waktu_id
         }
     }
+
+async def notify_position_change(nim: str, position: int):
+    await manager.send_message(nim, f"Posisi Anda di antrian: {position}")
