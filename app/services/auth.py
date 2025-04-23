@@ -49,39 +49,46 @@ def login_user(db: Session, email: str, password: str):
 
     response_data = {
         "access_token": token,
-        "token_type": "bearer",
-        "user": {
-            "user_id": str(userID),
-            "email": user.email,
-            "role": user.role,
-            "profile": {}
-        }
+        "token_type": "bearer"
     }
 
-    if user.role == "admin":
-        admin = db.query(Admin).filter(Admin.id == userID).first()
-        if admin:
-            response_data["user"]["profile"] = {
-                "name": admin.name
-            }
-
-    elif user.role == "dosen":
-        dosen = db.query(Dosen).filter(Dosen.id == userID).first()
-        if dosen:
-            response_data["user"]["profile"] = {
-                "name": dosen.name,
-                "inisial": dosen.alias
-            }
-
-    elif user.role == "mahasiswa":
-        mahasiswa = db.query(Mahasiswa).filter(Mahasiswa.id == userID).first()
-        if mahasiswa:
-            response_data["user"]["profile"] = {
-                "name": mahasiswa.nama,
-                "nim": mahasiswa.nim
-            }
-
     return response_data
+
+    # response_data = {
+    #     "access_token": token,
+    #     "token_type": "bearer",
+    #     "user": {
+    #         "user_id": str(userID),
+    #         "email": user.email,
+    #         "role": user.role,
+    #         "profile": {}
+    #     }
+    # }
+
+    # if user.role == "admin":
+    #     admin = db.query(Admin).filter(Admin.id == userID).first()
+    #     if admin:
+    #         response_data["user"]["profile"] = {
+    #             "name": admin.name
+    #         }
+
+    # elif user.role == "dosen":
+    #     dosen = db.query(Dosen).filter(Dosen.id == userID).first()
+    #     if dosen:
+    #         response_data["user"]["profile"] = {
+    #             "name": dosen.name,
+    #             "inisial": dosen.alias
+    #         }
+
+    # elif user.role == "mahasiswa":
+    #     mahasiswa = db.query(Mahasiswa).filter(Mahasiswa.id == userID).first()
+    #     if mahasiswa:
+    #         response_data["user"]["profile"] = {
+    #             "name": mahasiswa.nama,
+    #             "nim": mahasiswa.nim
+    #         }
+
+    # return response_data
 
 
     # if user.role == "mahasiswa":
