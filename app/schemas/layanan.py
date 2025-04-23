@@ -64,9 +64,10 @@ class PengajuanLayananBase(BaseModel):
     catatan_admin: Optional[str] = None
     jadwal_pengambilan: Optional[datetime] = None
 
-class PengajuanLayananCreate(PengajuanLayananBase):
-    pass
-
+class PengajuanLayananCreate(BaseModel):
+    mahasiswa_nim: str
+    jenis_layanan_id: int
+    
 class PengajuanUpdateSchema(BaseModel):
     status: str
     catatan_admin: Optional[str] = ""

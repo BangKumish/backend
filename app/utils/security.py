@@ -1,7 +1,10 @@
 from passlib.context import CryptContext
-from passlib.hash import bcrypt_sha256
-from datetime import datetime, timedelta
+
+from datetime import datetime
+from datetime import timedelta
+
 from fastapi import HTTPException
+
 from dotenv import load_dotenv
 from jwt import PyJWTError
 
@@ -37,6 +40,13 @@ def verify_token(token: str):
             token, SECRET_KEY, algorithms=[ALGORITHM]
         )
         return payload
+    
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=401,
+            detail="Token Expired"
+        )
+
     except PyJWTError:
         raise HTTPException(
             status_code=401,

@@ -88,6 +88,10 @@ def delete_dokumen_route(id: int, db: Session = Depends(get_db)):
 def create_pengajuan_route(data: PengajuanLayananCreate, db: Session = Depends(get_db)):
     return create_pengajuan(db, data)
 
+@router.get("/pengajuan/all", response_model=list[PengajuanLayananResponse])
+def get_all_pengajuan_route(db: Session = Depends(get_db)):
+    return get_all_pengajuan(db)
+
 @router.get("/pengajuan/{mahasiswa_nim}", response_model=list[PengajuanLayananResponse])
 def get_pengajuan_by_nim(mahasiswa_nim: str, db: Session = Depends(get_db)):
     return get_pengajuan_by_mahasiswa(db, mahasiswa_nim)

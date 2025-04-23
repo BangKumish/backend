@@ -106,6 +106,9 @@ def create_pengajuan(db: Session, data: PengajuanLayananCreate):
     db.refresh(pengajuan)
     return pengajuan
 
+def get_all_pengajuan(db: Session):
+    return db.query(PengajuanLayanan).order_by(PengajuanLayanan.created_at).all()
+
 def get_pengajuan_by_mahasiswa(db: Session, nim: str):
     return db.query(PengajuanLayanan).filter(PengajuanLayanan.mahasiswa_nim == nim).all()
 
