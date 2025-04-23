@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends
+from fastapi import Query
+from jwt import PyJWKError
 from sqlalchemy.orm import Session
 
 from app.config import SessionLocal
@@ -7,45 +9,97 @@ from app.schemas.user import *
 from app.utils.dependencies import *
 
 from app.config import get_db
+from uuid import UUID
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 @router.post("/login")
-def login(login_data: LoginUser, db: Session = Depends(get_db)):
+def login_route(login_data: LoginUser, db: Session = Depends(get_db)):
     return login_user(db, login_data.email, login_data.password)
 
 @router.get("/me")
-def get_my_profile(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    profile_data = {
-        "user_id": str(user.user_id),
-        "email": user.email,
-        "role": user.role
-    }
+def get_profile_route(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    profile = {}
 
     if user.role == "admin":
         admin = db.query(Admin).filter(Admin.id == user.user_id).first()
-        profile_data["admin"] = {
-            "name": admin.name,
-            "email": admin.email
-        } if admin else None
+        if admin:
+            profile = {
+                "role": "admin",
+                "name": admin.name,
+                "email": admin.email
+            }
 
     elif user.role == "dosen":
         dosen = db.query(Dosen).filter(Dosen.id == user.user_id).first()
-        profile_data["dosen"] = {
-            "name": dosen.name,
-            "alias": dosen.alias,
-            "email": dosen.email
-        } if dosen else None
+        if dosen:
+            profile = {
+                "role": "dosen",
+                "name": dosen.name,
+                "alias": dosen.alias,
+                "email": dosen.email
+            }
 
     elif user.role == "mahasiswa":
         mhs = db.query(Mahasiswa).filter(Mahasiswa.id == user.user_id).first()
-        profile_data["mahasiswa"] = {
-            "nim": mhs.nim,
-            "nama": mhs.nama
-        } if mhs else None
+        if mhs:
+            profile = {
+                "role": "mahasiswa",
+                "name": mhs.nama,
+                "nim": mhs.nim,
+                "email": mhs.email
+            }
 
-    return profile_data
+    return {
+        "user_id": str(user.user_id),
+        "email": user.email,
+        "role": user.role,
+        "profile": profile
+    }
 
-# @router.post("/register")
-# def register(user_data: RegisterUser, db: Session = Depends(get_db)):
-#     return register_user(db, user_data)
+@router.get("/test-me")
+def get_me_test(token: str, db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
+    except PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token or expired")
+
+    user = db.query(User).filter(User.user_id == UUID(user_id)).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if user.role == "admin":
+        admin = db.query(Admin).filter(Admin.id == user.user_id).first()
+        if admin:
+            profile = {
+                "role": "admin",
+                "name": admin.name,
+                "email": admin.email
+            }
+
+    elif user.role == "dosen":
+        dosen = db.query(Dosen).filter(Dosen.id == user.user_id).first()
+        if dosen:
+            profile = {
+                "role": "dosen",
+                "name": dosen.name,
+                "alias": dosen.alias,
+                "email": dosen.email
+            }
+
+    elif user.role == "mahasiswa":
+        mhs = db.query(Mahasiswa).filter(Mahasiswa.id == user.user_id).first()
+        if mhs:
+            profile = {
+                "role": "mahasiswa",
+                "name": mhs.nama,
+                "nim": mhs.nim,
+                "email": mhs.email
+            }
+
+    return profile
+

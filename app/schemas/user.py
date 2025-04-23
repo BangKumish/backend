@@ -1,6 +1,11 @@
-from pydantic import BaseModel, EmailStr, ConfigDict, HttpUrl
-from typing import Literal, Optional
-from datetime import datetime
+from pydantic import BaseModel
+from pydantic import ConfigDict
+from pydantic import HttpUrl
+
+from typing import Literal 
+from typing import Optional
+from typing import Union
+
 from uuid import UUID
 
 class UserBase(BaseModel):
@@ -38,5 +43,29 @@ class UserResponse(UserBase):
     # is_active: bool
     # email_verified: bool
     # created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+class AdminProfile(BaseModel):
+    name: str
+
+class DosenProfile(BaseModel):
+    name: str
+    inisial: str
+
+class MahasiswaProfile(BaseModel):
+    name: str
+    nim: str
+
+class UserBaseInfo(BaseModel):
+    user_id: UUID
+    email: str
+    role: str
+
+class UserProfileResponse(BaseModel):
+    user_id: UUID
+    email: str
+    role: str
+    profile: Union[AdminProfile, DosenProfile, MahasiswaProfile, dict]
 
     model_config = ConfigDict(from_attributes=True)

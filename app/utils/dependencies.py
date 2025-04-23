@@ -24,7 +24,6 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         detail="Couldn't validate credential",
         headers={"WWW-Authenticate": "Bearer"}
     )
-
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")
@@ -36,5 +35,4 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     user = db.query(User).filter(User.user_id == user_id).first()
     if user is None:
         raise credentials_exception
-    
     return user
