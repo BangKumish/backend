@@ -81,4 +81,4 @@ def update_profile(user_id: str, profile_date: UpdateProfile, db: Session):
 
     db.commit()
     db.refresh(user)
-    return user
+    return user 
