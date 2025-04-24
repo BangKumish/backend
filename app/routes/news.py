@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.services.news import create_news, get_all_news
+from app.services.news_service import create_news, get_all_news
 from app.schemas.news import NewsSchema
 from app.utils.dependencies import get_current_user
 

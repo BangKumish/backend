@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 
 from app.config import get_db
 
-from app.services.dosen import *
-from app.services.waktu_bimbingan import *
+from app.services.dosen_service import *
+from app.services.bimbingan_service import *
 
 from app.schemas.dosen import *
 

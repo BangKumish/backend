@@ -13,6 +13,7 @@ class User(Base):
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
     role = Column(String, nullable=False)
+    is_active = Column(Boolean, nullable=False, default=False)
 
     # admin = Relationship("Admin", back_populates="user", uselist=False)
     # dosen = Relationship("Dosen", back_populates="user", uselist=False)

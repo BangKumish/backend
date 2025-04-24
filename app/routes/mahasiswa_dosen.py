@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.schemas.mahasiswa_dosen import *
-from app.services.mahasiswa_dosen import *
+from app.services.relasi_service import *
 
 from app.config import get_db
 

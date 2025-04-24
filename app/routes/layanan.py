@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 
 from sqlalchemy.orm import Session
 
-from app.services.layanan import *
+from app.services.layanan_service import *
 from app.schemas.layanan import * 
 
 from app.config import get_db

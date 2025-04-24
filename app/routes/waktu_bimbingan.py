@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.services.waktu_bimbingan import create_waktuBimbingan, get_waktuBimbingan, get_waktuBimbingan_from_dosen, get_waktuBimbingan_from_mahasiswa
+from app.services.bimbingan_service import create_waktuBimbingan, get_waktuBimbingan, get_waktuBimbingan_from_dosen, get_waktuBimbingan_from_mahasiswa
 from app.schemas.waktu_bimbingan import WaktuBimbinganSchema
 
 from app.config import get_db

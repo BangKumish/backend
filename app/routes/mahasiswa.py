@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from uuid import UUID
 
-from app.services.mahasiswa import *
+from app.services.mahasiswa_service import *
 from app.schemas.mahasiswa import *
 
 from app.config import get_db

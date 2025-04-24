@@ -1,5 +1,5 @@
 from fastapi import APIRouter, UploadFile, File
-from app.services.file import *
+from app.services.file_service import *
 
 from app.config import get_db
 

@@ -57,15 +57,25 @@ class MahasiswaProfile(BaseModel):
     name: str
     nim: str
 
-class UserBaseInfo(BaseModel):
-    user_id: UUID
-    email: str
+class BaseProfile(BaseModel):
     role: str
+    email: str
+
+class AdminProfile(BaseProfile):
+    name: str
+
+class DosenProfile(BaseProfile):
+    name: str
+    alias: str
+
+class MahasiswaProfile(BaseProfile):
+    name: str
+    nim: str
+
+# --- Unified User Response ---
 
 class UserProfileResponse(BaseModel):
     user_id: UUID
     email: str
     role: str
-    profile: Union[AdminProfile, DosenProfile, MahasiswaProfile, dict]
-
-    model_config = ConfigDict(from_attributes=True)
+    profile: Union[AdminProfile, DosenProfile, MahasiswaProfile]
