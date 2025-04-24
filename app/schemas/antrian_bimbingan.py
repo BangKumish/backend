@@ -21,5 +21,6 @@ class AmbilAntrianResponse(BaseModel):
     posisi: int
     antrian_id: int
     antrian: AmbilAntrianSchema
+    
 class UpdateAntrianSchema(BaseModel):
     status: Optional[str]

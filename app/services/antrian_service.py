@@ -12,10 +12,10 @@ from app.routes.websocket import manager
 from datetime import datetime
 
 def get_antrian_by_id(db: Session, id_antrian: int):
-    return db.query(AntrianBimbingan).filter_by(AntrianBimbingan.id_antrian == id_antrian).first()
+    return db.query(AntrianBimbingan).filter(AntrianBimbingan.id_antrian == id_antrian).first()
 
 def ambil_antrian_bimbingan(db: Session, data: AmbilAntrianSchema):
-    waktu = db.query(WaktuBimbingan).filter_by(id=data.waktu_id).first()
+    waktu = db.query(WaktuBimbingan).filter(id=data.waktu_id).first()
     if not waktu:
         raise HTTPException(
             status_code=404,

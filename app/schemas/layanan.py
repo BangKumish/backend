@@ -100,8 +100,8 @@ class PengajuanLayananResponse(BaseModel):
     mahasiswa_nim: str
     jenis_layanan_id: int
     status: str 
-    catatan_admin: str
-    jadwal_pengambilan: datetime
+    catatan_admin: Optional[str] = None
+    jadwal_pengambilan: Optional[datetime] = None
     lampiran: List[LampiranPengajuanResponse]
 
     model_config = ConfigDict(from_attributes=True)

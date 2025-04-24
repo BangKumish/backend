@@ -2,7 +2,11 @@ from pydantic import BaseModel
 from pydantic import ConfigDict
 
 from typing import Optional
+from typing import List
+
 from datetime import date, time
+
+from app.schemas.antrian_bimbingan import AntrianBimbinganSchema
 
 class WaktuBimbinganSchema(BaseModel):
     id: int
@@ -11,6 +15,7 @@ class WaktuBimbinganSchema(BaseModel):
     tanggal: date
     waktu_mulai: time
     waktu_selesai: time
+    antrian_bimbingan: List[AntrianBimbinganSchema] = []
 
     model_config = ConfigDict(from_attributes=True)
 
