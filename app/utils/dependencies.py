@@ -7,6 +7,7 @@ from fastapi.security import OAuth2PasswordBearer
 
 from jwt import ExpiredSignatureError
 from jwt import PyJWKError
+from jwt import PyJWTError
 
 from sqlalchemy.orm import Session
 
@@ -60,3 +61,24 @@ def require_roles(*roles):
             )
         return user
     return role_checker
+
+def decode_jwt_token(token: str) -> str:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if not user_id:
+            raise PyJWTError()
+        return user_id
+    
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token Has Expired",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    
+    except PyJWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or Expired Token"
+        )

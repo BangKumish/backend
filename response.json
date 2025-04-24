@@ -98,5 +98,17 @@
         "layanan_file" : "",
         "layanan_status" :""
 
+    },
+    {
+        "mahasiswa_nim": "str",
+        "jenis_layanan_id": "int",
+        "status" : "str",
+        "catatan_admin" : "str",
+        "jadwal_pengambilan" : "datetime",
+        "lampiran":{
+            "lampiran_id": "UUID",
+            "nama_dokumen": "str",
+            "file_url": "str"
+        }
     }
 ]

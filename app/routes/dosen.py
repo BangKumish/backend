@@ -54,7 +54,7 @@ def get_dosen_route(nomor_induk: str, db: Session = Depends(get_db)):
     })
 
 @router.put("/{nomor_induk}")
-def update_dosen_route(nomor_induk: str, dosen_data: DosenUpdateSchema, db: Session = Depends(get_db)):
+async def update_dosen_route(nomor_induk: str, dosen_data: DosenUpdateSchema, db: Session = Depends(get_db)):
     dosen = update_dosen(db, nomor_induk, dosen_data)
     if not dosen:
         raise HTTPException(status_code = 404, detail = "Dosen Tidak Ditemukan")

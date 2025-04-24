@@ -3,9 +3,11 @@ from fastapi import HTTPException
 
 from app.models.dosen import Dosen
 from app.models.user import User
+from app.routes.websocket import manager 
 from app.schemas.dosen import *
 from app.utils.security import hash_password
 
+import asyncio
 import uuid
 
 def create_dosen(db: Session, dosen: DosenCreateSchema):
@@ -63,6 +65,14 @@ def update_dosen(db: Session, nomor_induk: str, dosen_data: DosenUpdateSchema):
 
     db.commit()
     db.refresh(dosen)
+
+    if "status_kehadiran" in update_data:
+        asyncio.get_event_loop().create_task(manager.broadcast({
+            "Inisial Dosen": dosen.alias,
+            "Nama Dosen": dosen.name,
+            "Status Kehadrian": dosen.status_kehadiran
+        }))
+    
     return dosen
 
 def delete_dosen(db: Session, dosen_id: UUID):

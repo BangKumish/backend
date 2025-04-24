@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import Form
 
 from sqlalchemy.orm import Session
 
@@ -142,3 +143,46 @@ def upload_lampiran(pengajuan_id: UUID, file: UploadFile = File(...), db: Sessio
         "metadata": metadata
     }
 
+
+# ============================
+# UPLOAD LAMPIRAN
+# ============================
+
+@router.post("/pengajuan/ajukan", response_model=PengajuanLayananResponse)
+async def ajukan_layanan(
+    mahasiswa_nim: str = Form(...),
+    jenis_layanan_id: int = Form(...),
+    berkas_utama: UploadFile = File(...),
+    lampiran_tambahan: list[UploadFile] = File(default=[]),
+    db: Session = Depends(get_db)
+):
+    pengajuan = PengajuanLayanan(
+        id = uuid.uuid4(),
+        mahasiswa_nim = mahasiswa_nim,
+        jenis_layanan_id = jenis_layanan_id,
+        status = "Mengunggu",
+        created_by = datetime.now()
+    )
+
+    db.add(pengajuan)
+    db.commit()
+    db.refresh(pengajuan)
+
+    main_file_url = upload_to_supabase(berkas_utama)
+    save_uploaded_file_metadata(
+        db=db,
+        nama_dokumen=berkas_utama.filename,
+        file_url=main_file_url,
+        pengajuan_id=pengajuan.id
+    )
+
+    for lampiran in lampiran_tambahan:
+        lampiran_url = upload_to_supabase(lampiran)
+        save_uploaded_file_metadata(
+            db=db,
+            nama_dokumen=lampiran.filename,
+            file_url=lampiran_url,
+            pengajuan_id=pengajuan.id
+        )
+
+    return pengajuan
