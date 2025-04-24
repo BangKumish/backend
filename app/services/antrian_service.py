@@ -15,7 +15,7 @@ def get_antrian_by_id(db: Session, id_antrian: int):
     return db.query(AntrianBimbingan).filter(AntrianBimbingan.id_antrian == id_antrian).first()
 
 def ambil_antrian_bimbingan(db: Session, data: AmbilAntrianSchema):
-    waktu = db.query(WaktuBimbingan).filter(id=data.waktu_id).first()
+    waktu = db.query(WaktuBimbingan).filter(WaktuBimbingan.id == data.waktu_id).first()
     if not waktu:
         raise HTTPException(
             status_code=404,

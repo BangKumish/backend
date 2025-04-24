@@ -19,6 +19,13 @@ class WaktuBimbinganSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class CreateWaktuBimbinganScheme(BaseModel):
+    nomor_induk: str
+    jumlah_antrian: int
+    tanggal: date
+    waktu_mulai: time
+    waktu_selesai: time
+
 class UpdateWaktuBimbinganScheme(BaseModel):
     jumlah_antrian: Optional[int] = None
     tanggal: Optional[date] = None

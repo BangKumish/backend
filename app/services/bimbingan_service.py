@@ -2,9 +2,9 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.models.waktu_bimbingan import WaktuBimbingan
-from app.schemas.waktu_bimbingan import WaktuBimbinganSchema, UpdateWaktuBimbinganScheme
+from app.schemas.waktu_bimbingan import CreateWaktuBimbinganScheme, WaktuBimbinganSchema, UpdateWaktuBimbinganScheme
 
-def create_waktuBimbingan(db: Session, waktuBimbinganSchema: WaktuBimbinganSchema):
+def create_waktuBimbingan(db: Session, waktuBimbinganSchema: CreateWaktuBimbinganScheme):
     db_waktuBimbingan = WaktuBimbingan(
         nomor_induk = waktuBimbinganSchema.nomor_induk,
         jumlah_antrian = waktuBimbinganSchema.jumlah_antrian,
