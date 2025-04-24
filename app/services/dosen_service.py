@@ -1,4 +1,6 @@
 from sqlalchemy.orm import Session
+from fastapi import HTTPException
+
 from app.models.dosen import Dosen
 from app.models.user import User
 from app.schemas.dosen import *
@@ -65,7 +67,16 @@ def update_dosen(db: Session, nomor_induk: str, dosen_data: DosenUpdateSchema):
 
 def delete_dosen(db: Session, dosen_id: UUID):
     dosen_data = db.query(Dosen).filter(Dosen.id == dosen_id).first()
-    if dosen_data:
-        db.delete(dosen_data)
-        db.commit()
-    return dosen_data
+    if not dosen_data:
+        raise HTTPException(
+            status_code=404,
+            detail="Dosen not found"
+        )
+
+    name = dosen_data.name
+    db.delete(dosen_data)
+    db.commit()
+
+    return {
+        "message": f"DOSEN {name} has been removed"
+    }

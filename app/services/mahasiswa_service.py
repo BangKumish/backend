@@ -1,3 +1,5 @@
+from fastapi import HTTPException
+
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import joinedload
 
@@ -76,5 +78,18 @@ def update_mahasiswa(db: Session, nim: str, mahasiswa_data: MahasiswaUpdateSchem
     db.refresh(mahasiswa)
     return mahasiswa
 
-def delete_mahasiswa(db: Session, nim:str):
-    pass
+def delete_mahasiswa(db: Session, mahasiswa_id: UUID):
+    _data = db.query(Mahasiswa).filter(_data.id == mahasiswa_id).first()
+    if not _data:
+        raise HTTPException(
+            status_code=404,
+            detail="Data Mahasiswa Tidak Ditemukan"
+        )
+
+    name = _data.nama
+    db.delete(_data)
+    db.commit()
+
+    return {
+        "message": f"Data Mahasiswa {name} telah dihapus"
+    }

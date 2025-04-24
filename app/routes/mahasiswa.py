@@ -8,6 +8,7 @@ from app.services.mahasiswa_service import *
 from app.schemas.mahasiswa import *
 
 from app.config import get_db
+from app.utils.dependencies import *
 
 router = APIRouter(prefix="/mahasiswa", tags=["Mahasiswa"])
 
@@ -74,3 +75,7 @@ def get_mahasiswa_detail(nim: str, db: Session = Depends(get_db)):
     }
 
     return JSONResponse(content=response)
+
+@router.delete("/del/{mahasiswa_id}", dependencies=[Depends(require_roles("admin"))])
+def delete_mahasiswa_route(mahasiswa_id: UUID, db: Session = Depends(get_db)):
+    return delete_mahasiswa(db, mahasiswa_id)

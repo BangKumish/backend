@@ -10,7 +10,7 @@ from app.services.bimbingan_service import *
 
 from app.schemas.dosen import *
 
-from app.utils.dependencies import get_current_user
+from app.utils.dependencies import *
 
 router = APIRouter(prefix="/dosen", tags=["Dosen"])
 
@@ -64,6 +64,6 @@ def update_dosen_route(nomor_induk: str, dosen_data: DosenUpdateSchema, db: Sess
 def get_dosen_detail_route(dosen_id: UUID, db: Session = Depends(get_db)):
     return get_detail_dosen(db, dosen_id)
 
-@router.delete("/{dosen_id}")
+@router.delete("/{dosen_id}", dependencies=[Depends(require_roles("admin"))])
 def delete_dosen_route(dosen_id: UUID, db: Session = Depends(get_db)):
     return delete_dosen(db, dosen_id)
