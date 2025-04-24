@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi import Form
 
+from typing import List
+
 from sqlalchemy.orm import Session
 
 from app.services.layanan_service import *
@@ -153,15 +155,15 @@ async def ajukan_layanan(
     mahasiswa_nim: str = Form(...),
     jenis_layanan_id: int = Form(...),
     berkas_utama: UploadFile = File(...),
-    lampiran_tambahan: list[UploadFile] = File(default=[]),
+    lampiran_tambahan: List[UploadFile] = File(...),
     db: Session = Depends(get_db)
 ):
     pengajuan = PengajuanLayanan(
         id = uuid.uuid4(),
         mahasiswa_nim = mahasiswa_nim,
         jenis_layanan_id = jenis_layanan_id,
-        status = "Mengunggu",
-        created_by = datetime.now()
+        status = "Menunggu",
+        created_at = datetime.now()
     )
 
     db.add(pengajuan)

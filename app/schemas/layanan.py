@@ -1,4 +1,7 @@
 from pydantic import BaseModel
+from pydantic import ConfigDict
+
+from typing import List
 from typing import Optional
 from uuid import UUID
 
@@ -73,15 +76,6 @@ class PengajuanUpdateSchema(BaseModel):
     catatan_admin: Optional[str] = ""
     jadwal_pengambilan: Optional[datetime] = None
 
-class PengajuanLayananResponse(PengajuanLayananBase):
-    id: UUID
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-
-
-
 # ================================
 # LAMPIRAN LAYANAN
 # ================================
@@ -93,10 +87,22 @@ class LampiranPengajuanBase(BaseModel):
 class LampiranPengajuanCreate(LampiranPengajuanBase):
     pengajuan_id: int
 
-class LampiranPengajuanResponse(LampiranPengajuanBase):
+class LampiranPengajuanResponse(BaseModel):
     id: UUID
-    pengajuan_id: UUID
+    nama_dokumen: str
+    file_url: str
     uploaded_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
+class PengajuanLayananResponse(BaseModel):
+    id: UUID
+    mahasiswa_nim: str
+    jenis_layanan_id: int
+    status: str 
+    catatan_admin: str
+    jadwal_pengambilan: datetime
+    lampiran: List[LampiranPengajuanResponse]
+
+    model_config = ConfigDict(from_attributes=True)
+    
