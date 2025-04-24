@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.services.layanan_service import *
 from app.schemas.layanan import * 
 
+from app.utils.dependencies import * 
 from app.config import get_db
 
 router = APIRouter(prefix="/layanan", tags=["Layanan"])
@@ -14,7 +15,7 @@ router = APIRouter(prefix="/layanan", tags=["Layanan"])
 # ============================
 
 
-@router.post("/jenis", response_model=JenisLayananResponse)
+@router.post("/jenis", response_model=JenisLayananResponse, dependencies=[Depends(require_roles("admin"))])
 def create_jenis_layanan_route(data: JenisLayananCreate, db: Session = Depends(get_db)):
     return create_jenis_layanan(db, data)
 

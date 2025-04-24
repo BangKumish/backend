@@ -1,6 +1,8 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
+
 from app.models.waktu_bimbingan import WaktuBimbingan
-from app.schemas.waktu_bimbingan import WaktuBimbinganSchema
+from app.schemas.waktu_bimbingan import WaktuBimbinganSchema, UpdateWaktuBimbinganScheme
 
 def create_waktuBimbingan(db: Session, waktuBimbinganSchema: WaktuBimbinganSchema):
     db_waktuBimbingan = WaktuBimbingan(
@@ -23,3 +25,34 @@ def get_waktuBimbingan_from_dosen(db: Session, nomor_induk: str):
 
 def get_waktuBimbingan_from_mahasiswa(db: Session, nim: str):
     return db.query(WaktuBimbingan).filter(WaktuBimbingan.nim == nim).all()
+
+def update_waktuBimbingan(db: Session, idWaktu: int, _data: UpdateWaktuBimbinganScheme):
+    record = db.query(WaktuBimbingan).filter(WaktuBimbingan.id == idWaktu).first()
+    
+    if not _data:
+        return None
+    
+    update_data = _data.model_dump(exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(record, key, value)
+
+    db.commit()
+    db.refresh(record)
+    return record
+
+def delete_waktuBimbingan(db: Session, idWaktu: int):
+    _data = db.query(WaktuBimbingan).filter(WaktuBimbingan.id == idWaktu).first()
+    if not _data:
+        raise HTTPException(
+            status_code=404,
+            detail="Data tidak ditemukan"
+        )
+
+    # name = dosen_data.name
+    db.delete(_data)
+    db.commit()
+
+    return {
+        "message": f"Jadwal Bimbingan telah dihapus"
+    }

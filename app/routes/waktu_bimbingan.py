@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.services.bimbingan_service import create_waktuBimbingan, get_waktuBimbingan, get_waktuBimbingan_from_dosen, get_waktuBimbingan_from_mahasiswa
-from app.schemas.waktu_bimbingan import WaktuBimbinganSchema
+from app.services.bimbingan_service import *
+from app.schemas.waktu_bimbingan import *
 
 from app.config import get_db
 
@@ -20,6 +20,14 @@ def get_waktu_bimbingan_route(idWaktu: int, db: Session = Depends(get_db)):
 def get_bimbingan_by_dosen(nomor_induk: str, db: Session = Depends(get_db)):
     return get_waktuBimbingan_from_dosen(db, nomor_induk)
 
-@router.get("/mahasiswa/{nim}", response_model=list[WaktuBimbinganSchema])
-def get_bimbingan_by_mahasiswa(nim: str, db: Session = Depends(get_db)):
-    return get_waktuBimbingan_from_mahasiswa(db, nim)
+@router.put("/dosen/{idWaktu}", response_model=WaktuBimbinganSchema)
+def update_waktu_bimbingan_route(idWaktu: int, updated_data: UpdateWaktuBimbinganScheme, db: Session = Depends(get_db)):
+    return update_waktuBimbingan(db, idWaktu, updated_data)
+
+@router.delete("/dosen/{idWaktu}")
+def delete_waktu_bimbingan_route(idWaktu: int, db: Session = Depends(get_db)):
+    return delete_waktuBimbingan(db, idWaktu)
+
+# @router.get("/mahasiswa/{nim}", response_model=list[WaktuBimbinganSchema])
+# def get_bimbingan_by_mahasiswa(nim: str, db: Session = Depends(get_db)):
+#     return get_waktuBimbingan_from_mahasiswa(db, nim)

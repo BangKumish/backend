@@ -112,7 +112,7 @@ def get_all_pengajuan(db: Session):
 def get_pengajuan_by_mahasiswa(db: Session, nim: str):
     return db.query(PengajuanLayanan).filter(PengajuanLayanan.mahasiswa_nim == nim).all()
 
-async def update_status_pengajuan(db: Session, id: UUID, data: PengajuanUpdateSchema):
+def update_status_pengajuan(db: Session, id: UUID, data: PengajuanUpdateSchema):
     pengajuan = db.query(PengajuanLayanan).filter(PengajuanLayanan.id == id).first()
     
     if pengajuan:
@@ -122,13 +122,13 @@ async def update_status_pengajuan(db: Session, id: UUID, data: PengajuanUpdateSc
         db.commit()
         db.refresh(pengajuan)
 
-        asyncio.get_event_loop().create_task(manager.broadcast({
+        asyncio.get_event_loop().create_task(manager.send_personal_message({
             "id": str(pengajuan.id),
             "status": pengajuan.status,
             "mahasiswa_nim": pengajuan.mahasiswa_nim,
             "catatan_admin": pengajuan.catatan_admin,
-            "jadwal_pengambilan": pengajuan.jadwal_pengambilan
-        }))
+            "jadwal_pengambilan": pengajuan.jadwal_pengambilan.isoformat() if pengajuan.jadwal_pengambilan else None
+        }, client_id=str(pengajuan.mahasiswa_nim)))
 
     return pengajuan
 

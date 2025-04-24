@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
+from fastapi import Depends
 from sqlalchemy.orm import Session
-from app.config import SessionLocal
+
 from app.services.antrian_service import *
 from app.schemas.antrian_bimbingan import *
 
@@ -15,3 +16,11 @@ def ambil_antrian(data: AmbilAntrianSchema, db: Session = Depends(get_db)):
 @router.get("/{id_antrian}", response_model=AntrianBimbinganSchema)
 def get_antrian_route(id_antrian: int, db: Session = Depends(get_db)):
     return get_antrian_by_id(db, id_antrian)
+
+@router.put("/{id_antrian}", response_model=AmbilAntrianResponse)
+def update_antrian_route(id_antrian: int, update_data: AntrianBimbinganSchema, db: Session = Depends(get_db)):
+    pass
+
+@router.delete("/{id_antrian}")
+def delete_antrian_route(id_antrian: int, db: Session = Depends(get_db)):
+    return delete_antrian(id_antrian, db)

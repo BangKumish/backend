@@ -11,13 +11,6 @@ from app.routes.websocket import manager
 
 from datetime import datetime
 
-def create_antrian(db: Session, antrian: AntrianBimbinganSchema):
-    db_antrian = AntrianBimbingan(**antrian.model_dump())
-    db.add(db_antrian)
-    db.commit()
-    db.refresh(db_antrian)
-    return db_antrian
-
 def get_antrian_by_id(db: Session, id_antrian: int):
     return db.query(AntrianBimbingan).filter_by(AntrianBimbingan.id_antrian == id_antrian).first()
 
@@ -78,3 +71,19 @@ def ambil_antrian_bimbingan(db: Session, data: AmbilAntrianSchema):
 
 async def notify_position_change(nim: str, position: int):
     await manager.send_message(nim, f"Posisi Anda di antrian: {position}")
+
+def delete_antrian(idAntrian: int, db: Session):
+    _data = db.query(AntrianBimbingan).filter(AntrianBimbingan.id_antrian == idAntrian).first()
+    if not _data:
+        raise HTTPException(
+            status_code=404,
+            detail="Data tidak ditemukan"
+        )
+
+    # name = dosen_data.name
+    db.delete(_data)
+    db.commit()
+
+    return {
+        "message": f"Antrian telah dihapus"
+    }
