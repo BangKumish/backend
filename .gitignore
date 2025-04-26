@@ -269,5 +269,6 @@ private_key.pem
 public_key.pem
 
 test_ws.py
-
+generate_vapid.py
+claim.json
 # End of https://www.toptal.com/developers/gitignore/api/flask,python

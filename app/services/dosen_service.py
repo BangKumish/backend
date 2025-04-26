@@ -67,7 +67,7 @@ def update_dosen(db: Session, nomor_induk: str, dosen_data: DosenUpdateSchema):
     db.refresh(dosen)
 
     if "status_kehadiran" in update_data:
-        asyncio.get_event_loop().create_task(manager.broadcast({
+        asyncio.get_event_loop().create_task(manager.broadcast_all({
             "Inisial Dosen": dosen.alias,
             "Nama Dosen": dosen.name,
             "Status Kehadrian": dosen.status_kehadiran

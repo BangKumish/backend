@@ -49,8 +49,8 @@
             {
                 "id": "ID Waktu Bimbingan",
                 "tanggal": "Tanggal Bimbingan",
-                "waktu mulai": "Waktu Mulai Bimbingan",
-                "waktu selesai": "Waktu Selesai Bimbingan",
+                "waktu_mulai": "Waktu Mulai Bimbingan",
+                "waktu_selesai": "Waktu Selesai Bimbingan",
                 "jumlah_bimbingan": "Jumlah Bimbingan",
                 
                 "antrian_bimbingan": {
@@ -71,8 +71,15 @@
             {
                 "id": "ID Waktu Bimbingan",
                 "tanggal": "Tanggal Bimbingan",
-                "waktu": "Waktu Bimbingan",
-                "jumlah_bimbingan": "Jumlah Bimbingan"
+                "waktu_mulai": "Waktu Mulai Bimbingan",
+                "waktu_selesai": "Waktu Selesai Bimbingan",
+                "jumlah_bimbingan": "Jumlah Bimbingan",
+
+                "antrian_bimbingan":{
+                    "id_antrian": {
+                        "mahasiswa":[]
+                    }
+                }
             }
         ]
     },

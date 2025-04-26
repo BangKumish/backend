@@ -3,14 +3,19 @@ from app.websockets.websocket_manager import WebSocketManager
 from app.utils.dependencies import decode_jwt_token
 
 from fastapi import HTTPException
-from fastapi import Query
-
-import asyncio
-import jwt
 
 router = APIRouter()
 manager = WebSocketManager()
 connected_client = []
+
+@router.websocket("/ws/room/{room_name}")
+async def websocket_room_endpoint(websocket: WebSocket, room_name: str):
+    await manager.connect(websocket, room_name)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket, room_name)
 
 @router.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: str):
