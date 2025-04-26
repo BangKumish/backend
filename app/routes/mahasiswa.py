@@ -20,7 +20,7 @@ def create_mahasiswa_route(mahasiswa: MahasiswaResponseSchema, db: Session = Dep
 def get_all_mahasiswa_route(db: Session = Depends(get_db)):
     return get_all_mahasiswa(db)
 
-@router.get("/{nim}", response_model=MahasiswaCreateSchema)
+@router.get("/{nim}", response_model=MahasiswaSchema)
 def get_mahasiswa_route(nim: str, db: Session = Depends(get_db)):
     return get_mahasiswa(db, nim)
 
