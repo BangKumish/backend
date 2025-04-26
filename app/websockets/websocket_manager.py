@@ -64,6 +64,21 @@ class WebSocketManager:
                 print(f"❌ Failed sending to '{room}': {e}")
 
     async def broadcast_all(self, message: dict):
-        print("🌐 Broadcasting to all rooms")
-        for room in list(self.rooms.keys()):
-            await self.broadcast_to_room(room, message)
+        print("🌐 Broadcasting to all unique connections")
+        unique_connections = set()
+
+        # Collect all unique WebSocket instances
+        for connections in self.rooms.values():
+            for websocket in connections:
+                unique_connections.add(websocket)
+
+        # Now broadcast only once to each WebSocket
+        for websocket in unique_connections:
+            try:
+                await websocket.send_json(message)
+            except Exception as e:
+                print(f"❌ Failed to broadcast: {e}")
+
+        print(f"✅ Broadcasted to {len(unique_connections)} unique connections")
+
+

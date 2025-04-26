@@ -117,5 +117,17 @@
             "nama_dokumen": "str",
             "file_url": "str"
         }
+    },
+    {
+        "antrian_id": "int",
+        "posisi": "int",
+        "message": "str",
+        "antrian": {
+            "nim": "str",
+            "nomor_induk": "str",
+            "waktu_id": "int",
+            "status_antrian": "Optional[str] = Menunggu"
+        },
+        "file": "Recent File Schemas We Make"
     }
 ]
