@@ -22,14 +22,14 @@ def create_dosen_route(dosen: DosenCreateSchema, db: Session = Depends(get_db)):
 def get_all_dosen_route(db: Session = Depends(get_db)):
     return get_all_dosen(db)
 
-@router.get("/{nomor_induk}", response_model=DosenSchema)
-def get_dosen_route(nomor_induk: str, db: Session = Depends(get_db)):
+@router.get("/{inisial}", response_model=DosenSchema)
+def get_dosen_route(inisial: str, db: Session = Depends(get_db)):
     
-    data = get_dosen(db, nomor_induk)
+    data = get_dosen(db, inisial)
     if not data:
         raise HTTPException(status_code=404, detail="Data not Found")
     
-    waktu_bimbingan = get_waktuBimbingan_from_dosen(db, nomor_induk)
+    waktu_bimbingan = get_waktu_bimbingan_from_dosen(db, inisial)
     
     return JSONResponse (content={
         "dosen": {
@@ -42,18 +42,20 @@ def get_dosen_route(nomor_induk: str, db: Session = Depends(get_db)):
         },
         "waktu_bimbingan": [
             {
-                "id": item.id,
+                "bimbingan_id": item.bimbingan_id,
                 "tanggal": str(item.tanggal),
                 "waktu_mulai": str(item.waktu_mulai),
-                "waktu_selesai": str(item.waktu_selesai)
+                "waktu_selesai": str(item.waktu_selesai),
+                "lokasi": item.lokasi,
+                "keterangan": item.keterangan
             }
             for item in waktu_bimbingan
         ]
     })
 
-@router.put("/{nomor_induk}")
-async def update_dosen_route(nomor_induk: str, dosen_data: DosenUpdateSchema, db: Session = Depends(get_db)):
-    dosen = update_dosen(db, nomor_induk, dosen_data)
+@router.put("/{inisial}")
+async def update_dosen_route(inisial: str, dosen_data: DosenUpdateSchema, db: Session = Depends(get_db)):
+    dosen = update_dosen(db, inisial, dosen_data)
     if not dosen:
         raise HTTPException(status_code = 404, detail = "Dosen Tidak Ditemukan")
     return {"Message": "Dosen Telah diUpdate", "data":dosen}

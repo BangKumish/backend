@@ -36,7 +36,7 @@ def get_waktu_bimbingan(db: Session, bimbingan_id: str):
 
 
 def get_waktu_bimbingan_from_dosen(db: Session, dosen_inisial: str):
-    waktu_list = db.query(WaktuBimbingan).filter(WaktuBimbingan.dosen_inisial == dosen_inisial).all()
+    waktu_list = db.query(WaktuBimbingan).filter(WaktuBimbingan.dosen_inisial == dosen_inisial).order_by(WaktuBimbingan.bimbingan_id.asc()).all()
     return [WaktuBimbinganSchema.model_validate(waktu) for waktu in waktu_list]
 
 
