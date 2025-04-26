@@ -1,30 +1,43 @@
 from pydantic import BaseModel
-from typing import List
 from typing import Optional
-from app.schemas.file import FileSchema
-# from datetime import datetime
+from uuid import UUID
+from datetime import datetime
+from app.schemas.file import FileSchema  
 
 class AntrianBimbinganSchema(BaseModel):
-    nim: str
-    nomor_induk: str
-    waktu_id: int
-    status_antrian: Optional[str] = "Menunggu"
-    files: Optional[List[FileSchema]] = None
-    # waktu_antrian: datetime
+    id_antrian: UUID
+    mahasiswa_nim: str
+    waktu_id: str
+    dosen_inisial: str
+    status_antrian: str = "Menunggu"
+    position: int
+    created_at: datetime
+    files: Optional[FileSchema] = None
 
     class Config:
         from_attributes = True
 
 class AmbilAntrianSchema(BaseModel):
-    nim: str
-    waktu_id: int
+    mahasiswa_nim: str
+    waktu_id: str
 
 class AmbilAntrianResponse(BaseModel):
     message: str
     posisi: int
-    antrian_id: int
+    id_antrian: UUID
     antrian: AmbilAntrianSchema
-    file: Optional[FileSchema] = None
-    
+    files: Optional[FileSchema] = None
+
+class AntrianBimbinganResponse(BaseModel):
+    id_antrian: UUID
+    mahasiswa_nim: str
+    dosen_inisial: str
+    waktu_id: str
+    status_antrian: str = "Menunggu"
+    position: int
+    created_at: datetime
+    files: Optional[FileSchema] = None
+
 class UpdateAntrianSchema(BaseModel):
-    status: Optional[str]
+    status_antrian: Optional[str] = None
+    position: Optional[int] = None

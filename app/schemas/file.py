@@ -23,7 +23,7 @@ class FileUpdateSchema(BaseModel):
 
 class FileSchema(BaseModel):
     file_id: UUID
-    antrian_id: int
+    antrian_id: UUID
     mahasiswa_nim: str
     filename: str
     file_url: str

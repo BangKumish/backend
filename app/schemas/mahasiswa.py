@@ -8,7 +8,7 @@ class MahasiswaSchema(BaseModel):
     nama: str
     email: str
     password: str
-    topik_penelitian: str
+    topik_penelitian: Optional[str] = None
 
     class Config:
         from_attributes = True

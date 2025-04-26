@@ -1,4 +1,12 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, Date, Time, DateTime
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import Date
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy import Text
+from sqlalchemy import Time
+
 from sqlalchemy.orm import relationship
 
 from app.config import Base
@@ -6,15 +14,18 @@ from app.config import Base
 class WaktuBimbingan(Base):
     __tablename__ = "waktu_bimbingan"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    nomor_induk = Column(String, ForeignKey('dosen.alias'), nullable=False)
-    jumlah_antrian = Column(Integer, nullable=False, default=5)
+    bimbingan_id = Column(String, primary_key=True, index=True)
+    dosen_inisial = Column(String, ForeignKey('dosen.alias', ondelete="CASCADE"), nullable=False)
+
     tanggal = Column(Date, nullable=False)
     waktu_mulai = Column(Time, nullable=False)
     waktu_selesai = Column(Time, nullable=False)
-    
-    # created_at = Column(DateTime, default=datetime.now(), nullable=False)
-    # update_at = Column(DateTime, onupdate=datetime.now(), nullable=False)
+
+    jumlah_antrian = Column(Integer, nullable=False, default=5)
+    is_active = Column(Boolean, nullable=False, default=True)
+
+    lokasi = Column(String, default="Ruang Prodi", nullable=False)
+    keterangan = Column(Text, nullable=True)
 
     dosen = relationship("Dosen", back_populates="waktu_bimbingan")
     antrian_bimbingan = relationship("AntrianBimbingan", back_populates="waktu_bimbingan")
