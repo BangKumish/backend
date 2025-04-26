@@ -63,7 +63,7 @@ def get_mahasiswa_detail(nim: str, db: Session = Depends(get_db)):
 
     response = {
         "mahasiswa": {
-            "id": mahasiswa.id,
+            "id": str(mahasiswa.id),
             "nama": mahasiswa.nama,
             "nim": mahasiswa.nim,
             "email": mahasiswa.email,
