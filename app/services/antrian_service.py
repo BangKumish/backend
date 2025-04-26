@@ -118,38 +118,55 @@ async def update_status_antrian(db: Session, id_antrian: UUID):
             detail="Antrian tidak Ditemukan."
         )
 
-    # 1. Tandai antrian ini sebagai "Selesai"
-    antrian.status_antrian = "Selesai"
-    db.commit()
-    db.refresh(antrian)
+    original_status = antrian.status_antrian
+    
+    # 1. Update this queue item's status
+    if antrian.status_antrian == "Menunggu":
+        antrian.status_antrian = "Dalam Bimbingan"
+        db.commit()
+        db.refresh(antrian)
+
+    elif antrian.status_antrian == "Dalam Bimbingan":
+        antrian.status_antrian = "Selesai"
+        db.commit()
+        db.refresh(antrian)
 
     # 2. Cari Waktu Bimbingannya
-    waktu = db.query(WaktuBimbingan).filter(WaktuBimbingan.id == antrian.waktu_id).first()
+    waktu = db.query(WaktuBimbingan).filter(WaktuBimbingan.bimbingan_id == antrian.waktu_id).first()
 
-    # 3. Cari dan update antrian selanjutnya
-    if waktu:
-        next_position = antrian.position + 1  # cari posisi berikutnya
-
-        next_antrian = db.query(AntrianBimbingan).filter_by(
-            waktu_id=waktu.id,
-            position=next_position,
-            status_antrian="Menunggu"  # pastikan statusnya masih Menunggu
+    # 3. Only look for the next queue item if we just finished a session
+    if waktu and original_status == "Dalam Bimbingan":
+        # Check if there's already another session in progress
+        already_in_progress = db.query(AntrianBimbingan).filter_by(
+            waktu_id=waktu.bimbingan_id,
+            status_antrian="Dalam Bimbingan"
         ).first()
+        
+        # Only update the next person if nobody is currently being served
+        if not already_in_progress:
+            next_position = antrian.position + 1  # cari posisi berikutnya
 
-        if next_antrian:
-            next_antrian.status_antrian = "Dalam Bimbingan"
-            db.commit()
-            db.refresh(next_antrian)
+            next_antrian = db.query(AntrianBimbingan).filter_by(
+                waktu_id=waktu.bimbingan_id,
+                position=next_position,
+                status_antrian="Menunggu"  # pastikan statusnya masih Menunggu
+            ).first()
 
-        # 4. Ambil semua daftar antrian terbaru untuk broadcast
+            if next_antrian:
+                next_antrian.status_antrian = "Dalam Bimbingan"
+                db.commit()
+                db.refresh(next_antrian)
+
+    # 4. Broadcast updates regardless of whether we updated the next item
+    if waktu:
         daftar = db.query(AntrianBimbingan).filter_by(
-            waktu_id=waktu.id
+            waktu_id=waktu.bimbingan_id
         ).order_by(AntrianBimbingan.position).all()
 
         await manager.broadcast_to_room(f"bimbingan_{antrian.dosen_inisial}", {
             "event": "update_antrian",
             "inisial": antrian.dosen_inisial,
-            "waktu_id": waktu.id,
+            "waktu_id": waktu.bimbingan_id,
             "tanggal": str(waktu.tanggal),
             "queue": [
                 {
@@ -160,7 +177,7 @@ async def update_status_antrian(db: Session, id_antrian: UUID):
             ]
         })
 
-    return {"message": "Status antrian diperbaharui menjadi Selesai dan antrian berikutnya mulai Dalam Bimbingan."}
+    return {"message": f"Status antrian diperbaharui menjadi {antrian.status_antrian}."}
 
 
 # async def update_status_antrian(db: Session, id_antrian: UUID):
