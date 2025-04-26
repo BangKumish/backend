@@ -79,7 +79,7 @@ def update_mahasiswa(db: Session, nim: str, mahasiswa_data: MahasiswaUpdateSchem
     return mahasiswa
 
 def delete_mahasiswa(db: Session, mahasiswa_id: UUID):
-    _data = db.query(Mahasiswa).filter(_data.id == mahasiswa_id).first()
+    _data = db.query(Mahasiswa).filter(Mahasiswa.id == mahasiswa_id).first()
     if not _data:
         raise HTTPException(
             status_code=404,
@@ -87,6 +87,10 @@ def delete_mahasiswa(db: Session, mahasiswa_id: UUID):
         )
 
     name = _data.nama
+    user_data = db.query(User).filter(User.user_id == mahasiswa_id).first
+    if user_data:
+        db.delete(user_data)
+
     db.delete(_data)
     db.commit()
 

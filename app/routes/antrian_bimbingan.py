@@ -9,8 +9,9 @@ from app.config import get_db
 
 router = APIRouter(
     prefix="/antrian", 
-    tags=["Antrian Bimbingan"],
-    dependencies=[Depends(require_roles("mahasiswa"))])
+    tags=["Antrian Bimbingan"]
+    # dependencies=[Depends(require_roles("mahasiswa"))]
+    )
 
 @router.post("/", response_model=AmbilAntrianResponse)
 async def ambil_antrian(data: AmbilAntrianSchema, db: Session = Depends(get_db)):

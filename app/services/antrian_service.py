@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Session
 
 from app.models.antrian_bimbingan import AntrianBimbingan
@@ -12,7 +13,10 @@ from app.routes.websocket import manager
 from datetime import datetime
 
 def get_antrian_by_id(db: Session, id_antrian: int):
-    return db.query(AntrianBimbingan).filter(AntrianBimbingan.id_antrian == id_antrian).first()
+    return db.query(AntrianBimbingan)\
+        .options(joinedload(AntrianBimbingan.files))\
+        .filter(AntrianBimbingan.id_antrian == id_antrian)\
+        .first()
 
 async def ambil_antrian_bimbingan(db: Session, data: AmbilAntrianSchema):
     waktu = db.query(WaktuBimbingan).filter(WaktuBimbingan.id == data.waktu_id).first()

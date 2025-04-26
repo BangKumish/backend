@@ -1,43 +1,53 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import File
+from fastapi import HTTPException
+from fastapi import UploadFile
+
+from sqlalchemy.orm import Session
+
+from app.models.file import Files as FileModel
 from app.services.file_service import *
+from app.schemas.file import *
+from app.utils.supabase_client import * 
 
 from app.config import get_db
 
 router = APIRouter(prefix="/file", tags=["File"])
 
-UPLOAD_FOLDER = "uploads/"
+@router.post("/", response_model=FileSchema)
+async def upload_file(
+    antrian_id: int,
+    mahasiswa_nim: str,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    try:
+        file_url = upload_to_supabase(file)
 
-# @router.post("/upload")
-# def upload_lampiran(file: UploadFile = File(...)):
-#     file_url = upload_file(file)  # pastikan fungsi upload_file benar
-#     return {
-#         "message": "Upload Berhasil",
-#         "url": file_url,
-#     }
+        file_record = FileModel(
+            antrian_id = antrian_id,
+            mahasiswa_nim = mahasiswa_nim,
+            filename = file.filename,
+            file_url = file_url,
+            is_checked = False,
+            created_at = datetime.now()
+        )
 
-# @router.post("/")
-# def upload_file_route(
-#     student_id: str, 
-#     file: UploadFile = File(...), 
-#     db: Session = Depends(get_db), 
-#     user: dict = Depends(get_current_user)
-#     ):
-#     if user["role"] != "mahasiswa":
-#         raise HTTPException(status_code=403, detail="Only Student can Post")
+        db.add(file_record)
+        db.commit()
+        db.refresh(file_record)
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
     
-#     file_path = f"{UPLOAD_FOLDER}{file.filename}"
-#     with open(file_path, "wb") as buffer:
-#         shutil.copyfileobj(file.file, buffer)
+    return file_record
 
-#     file_data = FileSchema(
-#         filename=file.filename,
-#         file_url=file_path,
-#         student_id=student_id
-#     )
-#     return upload_file(db, file_data)
-
-# @router.get("/{student_id}")
-# def get_file_route(student_id: str, db: Session = Depends(get_db), user:dict = Depends(get_current_user)):
-#     if user["role"] != "admin" and user["role"] != "mahasiswa":
-#         raise HTTPException(status_code=403, detail="Only Students and Admin can view files")
-#     return get_files(db, student_id)
+@router.get("/{file_id}", response_model=FileSchema)
+def get_file_route(file_id: UUID, db: Session = Depends(get_db)):
+    pass
+    

@@ -1,5 +1,7 @@
 from pydantic import BaseModel
+from typing import List
 from typing import Optional
+from app.schemas.file import FileSchema
 # from datetime import datetime
 
 class AntrianBimbinganSchema(BaseModel):
@@ -7,6 +9,7 @@ class AntrianBimbinganSchema(BaseModel):
     nomor_induk: str
     waktu_id: int
     status_antrian: Optional[str] = "Menunggu"
+    files: Optional[List[FileSchema]] = None
     # waktu_antrian: datetime
 
     class Config:
@@ -21,6 +24,7 @@ class AmbilAntrianResponse(BaseModel):
     posisi: int
     antrian_id: int
     antrian: AmbilAntrianSchema
+    file: Optional[FileSchema] = None
     
 class UpdateAntrianSchema(BaseModel):
     status: Optional[str]

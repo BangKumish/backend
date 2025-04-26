@@ -3,7 +3,7 @@ from mimetypes import guess_type
 
 from sqlalchemy.orm import Session
 
-from app.models.file import File
+from app.models.file import Files
 from app.schemas.file import FileSchema
 from app.utils.supabase_client import *
 # from app.utils.constant import *
@@ -30,4 +30,4 @@ def upload_file(file: UploadFile) -> str:
     return public_url
 
 def get_files(db: Session, student_id: str):
-    return db.query(File).filter(File.student_id == student_id).all()
+    return db.query(Files).filter(Files.mahasiswa_nim == student_id).all()

@@ -11,9 +11,11 @@ from app.routes import dosen, mahasiswa, waktu_bimbingan, antrian_bimbingan, adm
 from app.routes import test_notify
 from app.routes import websocket
 from app.routes import push_notif
+from app.routes import file
 
 from app.config import engine
 from app.models import admin as admin_model, dosen as dosen_model, mahasiswa as mahasiswa_model, waktu_bimbingan as waktu_model, antrian_bimbingan as antrian_model, news as news_model, file as file_model, layanan as layanan_model, mahasiswa_dosen as relasi_model, subscription as subs_model
+from app.models import file as files_model
 
 app = FastAPI(
     title="Dosen Queue System API",
@@ -46,9 +48,10 @@ app.include_router(antrian_bimbingan.router)
 
 app.include_router(layanan.router)
 
-app.include_router(test_notify.router)
-app.include_router(websocket.router)
-app.include_router(push_notif.router)
+# app.include_router(test_notify.router)
+# app.include_router(websocket.router)
+# app.include_router(push_notif.router)
+app.include_router(file.router)
 # app.include_router(news.router)
 # app.include_router(file.router)
 
@@ -95,8 +98,9 @@ antrian_model.Base.metadata.create_all(bind=engine)
 news_model.Base.metadata.create_all(bind=engine)
 file_model.Base.metadata.create_all(bind=engine)
 layanan_model.Base.metadata.create_all(bind=engine)
-relasi_model.Base.metadata.create_all(bind=engine)
-subs_model.Base.metadata.create_all(bind=engine)
+# relasi_model.Base.metadata.create_all(bind=engine)
+# subs_model.Base.metadata.create_all(bind=engine)
+file_model.Base.metadata.create_all(bind=engine)
 
 if __name__ == "__main__":
     import uvicorn

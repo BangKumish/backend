@@ -17,5 +17,6 @@ class AntrianBimbingan(Base):
     # update_at = Column(DateTime, onupdate=datetime.now(), nullable=False)
 
     dosen = relationship("Dosen", back_populates="antrian_bimbingan")
+    files = relationship("Files", back_populates="antrian_bimbingan") 
     mahasiswa = relationship("Mahasiswa", back_populates="antrian_bimbingan")
     waktu_bimbingan = relationship("WaktuBimbingan", back_populates="antrian_bimbingan")
