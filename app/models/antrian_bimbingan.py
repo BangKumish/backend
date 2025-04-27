@@ -1,13 +1,13 @@
 from sqlalchemy import Column 
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey 
 from sqlalchemy import Integer
 from sqlalchemy import String 
-from sqlalchemy import TIMESTAMP 
-from sqlalchemy import ForeignKey 
-from sqlalchemy import DateTime
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
-from sqlalchemy.orm import relationship
 from app.config import Base
+
 from datetime import datetime
 
 import uuid

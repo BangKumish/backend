@@ -3,6 +3,7 @@ from fastapi import HTTPException
 from fastapi import WebSocket
 from fastapi import WebSocketDisconnect
 
+from app.services.mahasiswa_service import get_detail_mahasiswa
 from app.websockets.websocket_manager import WebSocketManager
 from app.utils.dependencies import decode_jwt_token
 
@@ -23,10 +24,18 @@ async def websocket_endpoint(websocket: WebSocket):
 
     try:
         user_id = decode_jwt_token(token)
+        
+        mahasiswa = get_detail_mahasiswa(user_id)
+        if mahasiswa:
+            user_id = mahasiswa.nim
+        else:
+            await websocket.close(code=1008)
+            return
+
     except HTTPException:
         await websocket.close(code=1008)
         return
-
+    
     await manager.connect_user(user_id, websocket)
 
     try:

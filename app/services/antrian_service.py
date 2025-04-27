@@ -1,4 +1,3 @@
-from fastapi import File
 from fastapi import HTTPException
 from fastapi import UploadFile
 
@@ -53,10 +52,6 @@ async def ambil_antrian_bimbingan(db: Session, waktu_id: str, nim: str, file: Op
     
     posisi = jumlah + 1
     
-    # posisi = next((
-    #     i+1 for i, m in enumerate(daftar) if m.nim == mahasiswa_nim
-    # ), None )
-    
     antrianId = uuid4()
     antrian = AntrianBimbingan(
         id_antrian = antrianId,
@@ -82,19 +77,22 @@ async def ambil_antrian_bimbingan(db: Session, waktu_id: str, nim: str, file: Op
             db = db
         )
 
-    await manager.broadcast_to_room(f"bimbingan_{dosen.alias}", {
-        "event": "update_antrian",
-        "inisial": dosen.alias,
-        "waktu_id": waktu.bimbingan_id,
-        "tanggal": str(waktu.tanggal),
-        "queue": [
-            {
-                "id_antrian": item.id_antrian,
-                "nim": item.mahasiswa_nim,
-                "status": item.status_antrian
-            } for item in daftar
-        ]
-    })
+    for item in daftar:
+        await manager.send_json(
+            user_id=item.mahasiswa_nim,
+            data={
+                "event": "update_antrian",
+                "inisial": dosen.alias,
+                "waktu_id": waktu.bimbingan_id,
+                "tanggal": str(waktu.tanggal),
+                "queue": [
+                    {
+                        "id_antrian": str(item.id_antrian),
+                        "nim": item.mahasiswa_nim,
+                        "status": item.status_antrian
+                    } for item in daftar
+                ]
+            })
 
     return AmbilAntrianResponse(
         message="Berhasil masuk antrian",
@@ -121,7 +119,6 @@ async def update_status_antrian(db: Session, id_antrian: UUID):
 
     original_status = antrian.status_antrian
     
-    # 1. Update this queue item's status
     if antrian.status_antrian == "Menunggu":
         antrian.status_antrian = "Dalam Bimbingan"
         db.commit()
@@ -132,25 +129,21 @@ async def update_status_antrian(db: Session, id_antrian: UUID):
         db.commit()
         db.refresh(antrian)
 
-    # 2. Cari Waktu Bimbingannya
     waktu = db.query(WaktuBimbingan).filter(WaktuBimbingan.bimbingan_id == antrian.waktu_id).first()
 
-    # 3. Only look for the next queue item if we just finished a session
     if waktu and original_status == "Dalam Bimbingan":
-        # Check if there's already another session in progress
         already_in_progress = db.query(AntrianBimbingan).filter_by(
             waktu_id=waktu.bimbingan_id,
             status_antrian="Dalam Bimbingan"
         ).first()
         
-        # Only update the next person if nobody is currently being served
         if not already_in_progress:
-            next_position = antrian.position + 1  # cari posisi berikutnya
+            next_position = antrian.position + 1  
 
             next_antrian = db.query(AntrianBimbingan).filter_by(
                 waktu_id=waktu.bimbingan_id,
                 position=next_position,
-                status_antrian="Menunggu"  # pastikan statusnya masih Menunggu
+                status_antrian="Menunggu"  
             ).first()
 
             if next_antrian:
@@ -158,63 +151,29 @@ async def update_status_antrian(db: Session, id_antrian: UUID):
                 db.commit()
                 db.refresh(next_antrian)
 
-    # 4. Broadcast updates regardless of whether we updated the next item
     if waktu:
         daftar = db.query(AntrianBimbingan).filter_by(
             waktu_id=waktu.bimbingan_id
         ).order_by(AntrianBimbingan.position).all()
 
-        await manager.broadcast_to_room(f"bimbingan_{antrian.dosen_inisial}", {
+        payload = {
             "event": "update_antrian",
             "inisial": antrian.dosen_inisial,
             "waktu_id": waktu.bimbingan_id,
             "tanggal": str(waktu.tanggal),
             "queue": [
                 {
-                    "id_antrian": item.id_antrian,
+                    "id_antrian": str(item.id_antrian),
                     "nim": item.mahasiswa_nim,
                     "status": item.status_antrian
                 } for item in daftar
             ]
-        })
+        }
+
+        for item in daftar:
+            await manager.send_json(item.mahasiswa_nim, payload)
 
     return {"message": f"Status antrian diperbaharui menjadi {antrian.status_antrian}."}
-
-
-# async def update_status_antrian(db: Session, id_antrian: UUID):
-#     antrian = db.query(AntrianBimbingan).filter_by(id_antrian=id_antrian).first()
-
-#     if not antrian:
-#         raise HTTPException(
-#             status_code=404,
-#             detail="Antrian tidak Ditemukan."
-#         )
-    
-#     antrian.status_antrian = "Selesai"
-#     db.commit()
-#     db.refresh(antrian)
-
-#     waktu = db.query(WaktuBimbingan).filter(WaktuBimbingan.id == antrian.waktu_id).first()
-#     if waktu:
-#         daftar = db.query(AntrianBimbingan).filter_by(
-#             waktu_id=waktu.id
-#         ).order_by(AntrianBimbingan.waktu_antrian).all()
-
-#         await manager.broadcast_to_room(f"bimbingan_{antrian.dosen_inisial}", {
-#             "event": "update_antrian",
-#             "inisial": antrian.dosen_inisial,
-#             "waktu_id": waktu.id,
-#             "tanggal": str(waktu.tanggal),
-#             "queue": [
-#                 {
-#                     "id_antrian": item.id_antrian,
-#                     "nim": item.mahasiswa_nim,
-#                     "status": item.status_antrian
-#                 } for item in daftar
-#             ]
-#         })
-
-#     return {"message": f"Status antrian diperbaharui menjadi Selesai."}
 
 def delete_antrian(idAntrian: UUID, db: Session):
     _data = db.query(AntrianBimbingan).filter(AntrianBimbingan.id_antrian == idAntrian).first()
@@ -224,7 +183,6 @@ def delete_antrian(idAntrian: UUID, db: Session):
             detail="Data tidak ditemukan"
         )
 
-    # name = dosen_data.name
     db.delete(_data)
     db.commit()
 

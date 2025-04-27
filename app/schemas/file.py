@@ -30,6 +30,6 @@ class FileSchema(BaseModel):
     is_checked: bool
     keterangan: Optional[str] = None
     created_at: datetime
-    updated_at: Optional[datetime] = None
+    update_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)

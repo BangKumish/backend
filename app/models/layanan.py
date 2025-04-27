@@ -1,13 +1,18 @@
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Boolean
+from sqlalchemy import Column 
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy import Text
 from sqlalchemy.orm import Relationship
-
-from datetime import datetime
+from sqlalchemy.dialects.postgresql import UUID
 
 from app.config import Base
 
-import uuid
+from datetime import datetime
 
+import uuid
 
 class Layanan(Base):
     __tablename__ = "layanan"
@@ -28,15 +33,15 @@ class JenisLayanan(Base):
     is_aktif = Column(Boolean, default=True)
     url_file = Column(String)
 
-    dokumen_persyaratan =  Relationship("DokumenPersyaratan", back_populates="jenis_layanan")
-    pengajuan = Relationship("PengajuanLayanan", back_populates="jenis_layanan")
+    dokumen_persyaratan =  Relationship("DokumenPersyaratan", back_populates="jenis_layanan", cascade="all, delete-orphan")
+    pengajuan = Relationship("PengajuanLayanan", back_populates="jenis_layanan", cascade="all, delete-orphan")
 
 
 class DokumenPersyaratan(Base):
     __tablename__ = "dokumen_persyaratan"
 
     id = Column(Integer, primary_key=True, index=True)
-    jenis_layanan_id = Column(Integer, ForeignKey("jenis_layanan.id"), nullable=False)
+    jenis_layanan_id = Column(Integer, ForeignKey("jenis_layanan.id", ondelete="CASCADE"), nullable=False)
     nama_dokumen = Column(String, nullable=False)
     is_wajib = Column(Boolean, default=True)
 
@@ -48,8 +53,8 @@ class PengajuanLayanan(Base):
 
     # id = Column(Integer, primary_key=True, index=True)
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    mahasiswa_nim = Column(String, ForeignKey("mahasiswa.nim"), nullable=False)
-    jenis_layanan_id = Column(String, ForeignKey("jenis_layanan.id"), nullable=False)
+    mahasiswa_nim = Column(String, ForeignKey("mahasiswa.nim", ondelete="CASCADE"), nullable=False)
+    jenis_layanan_id = Column(Integer, ForeignKey("jenis_layanan.id", ondelete="CASCADE"), nullable=False)
     status = Column(String, default="Menunggu")
     catatan_admin = Column(Text, nullable=True)
     jadwal_pengambilan = Column(DateTime, nullable=True)
@@ -62,9 +67,8 @@ class PengajuanLayanan(Base):
 class LampiranPengajuan(Base):
     __tablename__ = "lampiran_pengajuan"
 
-    # id = Column(Integer, primary_key=True, index=True)
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    pengajuan_id = Column(Integer, ForeignKey("pengajuan_layanan.id"), nullable=False)
+    pengajuan_id = Column(UUID(as_uuid=True), ForeignKey("pengajuan_layanan.id", ondelete="CASCADE"), nullable=False)
     nama_dokumen = Column(String, nullable=False)
     file_url = Column(String, nullable=False)
     uploaded_at = Column(DateTime, default=datetime.now())

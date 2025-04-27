@@ -1,5 +1,11 @@
-from sqlalchemy import Column, String, ForeignKey, Integer, UniqueConstraint, DateTime
-from sqlalchemy.orm import relationship, validates
+from sqlalchemy import Column 
+from sqlalchemy import DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy import UniqueConstraint
+from sqlalchemy.orm import relationship
+
 from app.config import Base
 
 from datetime import datetime
@@ -7,11 +13,11 @@ class MahasiswaDosen(Base):
     __tablename__ = "mahasiswa_dosen"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    mahasiswa_nim = Column(String, ForeignKey("mahasiswa.nim"), nullable=False)
-    dosen_alias = Column(String, ForeignKey("dosen.alias"))
+    mahasiswa_nim = Column(String, ForeignKey("mahasiswa.nim", ondelete="CASCADE"), nullable=False)
+    dosen_alias = Column(String, ForeignKey("dosen.alias", ondelete="CASCADE"), nullable=False)
     role = Column(String)
     created_at = Column(DateTime, default=datetime.now(), nullable=False)
-    updated_at = Column(DateTime, default=datetime.now(), onupdate=datetime.now(), nullable=False)
+    update_at = Column(DateTime, default=datetime.now(), onupdate=datetime.now(), nullable=False)
 
     mahasiswa = relationship("Mahasiswa", back_populates="dosen_relation")
     dosen = relationship("Dosen", back_populates="mahasiswa_relation")
