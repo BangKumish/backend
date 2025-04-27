@@ -17,7 +17,7 @@ class MahasiswaDosen(Base):
     dosen_alias = Column(String, ForeignKey("dosen.alias", ondelete="CASCADE"), nullable=False)
     role = Column(String)
     created_at = Column(DateTime, default=datetime.now(), nullable=False)
-    update_at = Column(DateTime, default=datetime.now(), onupdate=datetime.now(), nullable=False)
+    # update_at = Column(DateTime, default=datetime.now(), onupdate=datetime.now(), nullable=False)
 
     mahasiswa = relationship("Mahasiswa", back_populates="dosen_relation")
     dosen = relationship("Dosen", back_populates="mahasiswa_relation")

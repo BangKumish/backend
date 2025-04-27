@@ -110,9 +110,9 @@ async def update_pengajuan_status_route(id: UUID, data: PengajuanUpdateSchema, d
             detail="Pengajuan tidak Ditemukan"
         )
     
-    await manager.broadcast({
-        "id": str(id), "status": data.status
-    })
+    # await manager.broadcast({
+    #     "id": str(id), "status": data.status
+    # })
 
     return result
 

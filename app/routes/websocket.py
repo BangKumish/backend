@@ -1,8 +1,12 @@
 from fastapi import APIRouter
+from fastapi import Depends
 from fastapi import HTTPException
 from fastapi import WebSocket
 from fastapi import WebSocketDisconnect
 
+from sqlalchemy.orm import Session
+
+from app.config import get_db
 from app.services.mahasiswa_service import get_detail_mahasiswa
 from app.websockets.websocket_manager import WebSocketManager
 from app.utils.dependencies import decode_jwt_token
@@ -14,7 +18,7 @@ router = APIRouter()
 manager = WebSocketManager()
 
 @router.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket, db: Session = Depends(get_db)):
     await websocket.accept()
 
     token = websocket.query_params.get("token")
@@ -24,8 +28,10 @@ async def websocket_endpoint(websocket: WebSocket):
 
     try:
         user_id = decode_jwt_token(token)
-        
-        mahasiswa = get_detail_mahasiswa(user_id)
+        # Don't use Depends directly as shown below:
+        # db: Session = Depends(get_db)  <- This is wrong
+        # Instead, get the db from the function parameters as shown above
+        mahasiswa = get_detail_mahasiswa(db, user_id)
         if mahasiswa:
             user_id = mahasiswa.nim
         else:
