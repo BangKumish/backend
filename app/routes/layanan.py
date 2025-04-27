@@ -193,15 +193,12 @@ async def ajukan_layanan(
     )
 
     if lampiran_tambahan:
-        for lampiran in lampiran_tambahan:
-            lampiran_url = upload_to_supabase(lampiran)
-            save_uploaded_file_metadata(
-                db=db,
-                nama_dokumen=lampiran.filename,
-                file_url=lampiran_url,
-                pengajuan_id=pengajuan.id
-            )
-    else:
-        pass
+        lampiran_url = upload_to_supabase(lampiran_tambahan)
+        save_uploaded_file_metadata(
+            db=db,
+            nama_dokumen=lampiran_tambahan.filename,
+            file_url=lampiran_url,
+            pengajuan_id=pengajuan.id
+        )
 
     return pengajuan
