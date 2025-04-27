@@ -49,7 +49,7 @@ app.include_router(antrian_bimbingan.router)
 app.include_router(layanan.router)
 
 # app.include_router(test_notify.router)
-# app.include_router(websocket.router)
+app.include_router(websocket.router)
 # app.include_router(push_notif.router)
 app.include_router(file.router)
 # app.include_router(news.router)

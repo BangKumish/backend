@@ -22,8 +22,8 @@ def get_antrian_by_id(db: Session, id_antrian: UUID):
         .filter(AntrianBimbingan.id_antrian == id_antrian)\
         .first()
 
-async def ambil_antrian_bimbingan(db: Session, waktu_id: int, nim: str, file: Optional[UploadFile] = None):
-    waktu = db.query(WaktuBimbingan).filter(WaktuBimbingan.id == waktu_id).first()
+async def ambil_antrian_bimbingan(db: Session, waktu_id: str, nim: str, file: Optional[UploadFile] = None):
+    waktu = db.query(WaktuBimbingan).filter(WaktuBimbingan.bimbingan_id == waktu_id).first()
     if not waktu:
         raise HTTPException(
             status_code=404,
@@ -63,7 +63,7 @@ async def ambil_antrian_bimbingan(db: Session, waktu_id: int, nim: str, file: Op
         id_antrian = antrianId,
         mahasiswa_nim = nim,
         waktu_id = waktu_id,
-        dosen_inisial = waktu.nomor_induk,
+        dosen_inisial = waktu.dosen_inisial,
         status_antrian = "Menunggu",
         position = posisi,
         created_at = datetime.now()
@@ -84,7 +84,7 @@ async def ambil_antrian_bimbingan(db: Session, waktu_id: int, nim: str, file: Op
     await manager.broadcast_to_room(f"bimbingan_{dosen.alias}", {
         "event": "update_antrian",
         "inisial": dosen.alias,
-        "waktu_id": waktu.id,
+        "waktu_id": waktu.bimbingan_id,
         "tanggal": str(waktu.tanggal),
         "queue": [
             {

@@ -17,7 +17,7 @@ router = APIRouter(
     )
 
 @router.post("/", response_model=AmbilAntrianResponse)
-async def ambil_antrian(waktu_id: int, mahasiswa_nim: str, file: UploadFile = File(None), db: Session = Depends(get_db)):
+async def ambil_antrian(waktu_id: str, mahasiswa_nim: str, file: UploadFile = File(None), db: Session = Depends(get_db)):
     return await ambil_antrian_bimbingan(db, waktu_id, mahasiswa_nim, file)
 
 @router.get("/{id_antrian}", response_model=AntrianBimbinganSchema)
