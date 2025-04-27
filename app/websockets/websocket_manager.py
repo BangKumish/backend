@@ -5,80 +5,59 @@ from fastapi import WebSocket
 
 class WebSocketManager:
     def __init__(self):
-        self.rooms: Dict[str, List[WebSocket]] = {}
+        self.active_connections: Dict[str, WebSocket] = {}
 
-    async def connect(self, websocket: WebSocket, room: str):
-        await websocket.accept()
-        if room not in self.rooms:
-            self.rooms[room] = []
-        self.rooms[room].append(websocket)
-        print(f"🟢 Connected to room '{room}'. Total: {len(self.rooms[room])}")
+    async def connect_user(self, user_id: str, websocket: WebSocket):
+        if user_id not in self.active_connections:
+            self.active_connections[user_id] = []
+        self.active_connections[user_id].append(websocket)
+        print(f"🟢 Connected user '{user_id}'. Total connections: {len(self.active_connections[user_id])}")
 
-    def disconnect(self, websocket: WebSocket, room: str):
-        if room in self.rooms and websocket in self.rooms[room]:
-            self.rooms[room].remove(websocket)
-            print(f"🔴 Disconnected from room '{room}'. Remaining: {len(self.rooms[room])}")
-            if not self.rooms[room]:
-                del self.rooms[room]
+    def disconnect_user(self, user_id: str, websocket: WebSocket):
+        if user_id in self.active_connections and websocket in self.active_connections[user_id]:
+            self.active_connections[user_id].remove(websocket)
+            print(f"🔴 Disconnected user '{user_id}'. Remaining: {len(self.active_connections[user_id])}")
+            if not self.active_connections[user_id]:
+                del self.active_connections[user_id]
 
     async def send_message(self, user_id: str, message: str):
-        websocket = self.active_connections.get(user_id, [])
-        for ws in websocket:
+        connections = self.active_connections.get(user_id, [])
+        for ws in connections:
             try:
                 await ws.send_text(message)
             except Exception as e:
                 print(f"⚠️ Failed to send to {user_id}: {e}")
 
     async def send_json(self, user_id: str, data: dict):
-        websocket = self.active_connections.get(user_id, [])
-        for ws in websocket:
+        connections = self.active_connections.get(user_id, [])
+        for ws in connections:
             try:
                 await ws.send_json(data)
             except Exception as e:
                 print(f"⚠️ Failed to send JSON to {user_id}: {e}")
 
-    async def send_personal_message(self, message: dict, client_id: str):
-        websocket = self.active_connections.get(client_id, [])
-        for ws in websocket:
-            try:
-                await ws.send_json(message)
-            except Exception as e:
-                print(f"⚠️ Failed to send JSON to {client_id}: {e}")
-
     async def broadcast(self, message: dict):
         print("📢 Broadcasting to:", sum(len(v) for v in self.active_connections.values()))
-        for uid, websocket in self.active_connections.items():
-            for ws in websocket:
+        for user_id, connections in self.active_connections.items():
+            for ws in connections:
                 try:
                     await ws.send_json(message)
                 except Exception as e:
-                    print(f"❌ Failed to send to {uid}: {e}")
-
-    async def broadcast_to_room(self, room: str, message: dict):
-        connections = self.rooms.get(room, [])
-        print(f"📢 Broadcasting to '{room}': {len(connections)} clients")
-        for websocket in connections:
-            try:
-                await websocket.send_json(message)
-            except Exception as e:
-                print(f"❌ Failed sending to '{room}': {e}")
+                    print(f"❌ Failed to send to {user_id}: {e}")
 
     async def broadcast_all(self, message: dict):
         print("🌐 Broadcasting to all unique connections")
         unique_connections = set()
 
-        # Collect all unique WebSocket instances
-        for connections in self.rooms.values():
-            for websocket in connections:
-                unique_connections.add(websocket)
+        for connections in self.active_connections.values():
+            for ws in connections:
+                unique_connections.add(ws)
 
-        # Now broadcast only once to each WebSocket
-        for websocket in unique_connections:
+        for ws in unique_connections:
             try:
-                await websocket.send_json(message)
+                await ws.send_json(message)
             except Exception as e:
                 print(f"❌ Failed to broadcast: {e}")
 
         print(f"✅ Broadcasted to {len(unique_connections)} unique connections")
-
 

@@ -51,7 +51,6 @@ async def ambil_antrian_bimbingan(db: Session, waktu_id: str, nim: str, file: Op
             detail="Slot penuh."
         )
     
-    daftar = db.query(AntrianBimbingan).filter_by(waktu_id=waktu_id).order_by(AntrianBimbingan.created_at).all()
     posisi = jumlah + 1
     
     # posisi = next((
@@ -71,6 +70,8 @@ async def ambil_antrian_bimbingan(db: Session, waktu_id: str, nim: str, file: Op
     db.add(antrian)
     db.commit()
     db.refresh(antrian)
+
+    daftar = db.query(AntrianBimbingan).filter_by(waktu_id=waktu_id).order_by(AntrianBimbingan.created_at).all()
 
     uploaded_file = None
     if file:
