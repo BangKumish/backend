@@ -1,5 +1,6 @@
 from fastapi import UploadFile
 
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Session
 
 from app.models.layanan import *
@@ -126,7 +127,7 @@ def create_pengajuan(db: Session, data: PengajuanLayananCreate):
     return pengajuan
 
 def get_all_pengajuan(db: Session):
-    return db.query(PengajuanLayanan).order_by(PengajuanLayanan.created_at).all()
+    return db.query(PengajuanLayanan).options(joinedload(PengajuanLayanan.jenis_layanan)).order_by(PengajuanLayanan.created_at.desc()).all()
 
 def get_pengajuan_by_mahasiswa(db: Session, nim: str):
     return db.query(PengajuanLayanan).filter(PengajuanLayanan.mahasiswa_nim == nim).all()
