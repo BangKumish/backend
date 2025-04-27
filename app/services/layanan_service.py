@@ -5,7 +5,9 @@ from sqlalchemy.orm import Session
 from app.models.layanan import *
 from app.schemas.layanan import *
 from app.utils.supabase_client import *
-from app.routes.websocket import manager 
+from app.utils.push_service import PushService
+from app.models.subscription import PushSubscription
+from app.routes.websocket_router import manager 
 
 from mimetypes import guess_type
 from datetime import datetime
@@ -161,6 +163,27 @@ def update_status_pengajuan(db: Session, id: UUID, data: PengajuanUpdateSchema):
                 data=payload
             )
         )
+
+        push_service = PushService()
+        subscription = db.query(PushSubscription).filter(PushSubscription.user_id == pengajuan.mahasiswa_nim).first()
+        if subscription:
+            try:
+                push_service.send_notification(
+                    subscription={
+                        "endpoint": subscription.endpoint,
+                        "keys": {
+                            "p256dh": subscription.keys_p256dh,
+                            "auth": subscription.keys_auth
+                        }
+                    },
+                    data={
+                        "title": "Status Pengajuan Diperbarui",
+                        "body": f"Status pengajuan Anda telah diperbarui menjadi: {pengajuan.status}",
+                        "data": payload
+                    }
+                )
+            except Exception as e:
+                print(f"Failed to send web push notification: {e}")
 
     return pengajuan
 

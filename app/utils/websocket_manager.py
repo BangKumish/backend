@@ -61,3 +61,5 @@ class WebSocketManager:
 
         print(f"✅ Broadcasted to {len(unique_connections)} unique connections")
 
+
+manager = WebSocketManager()

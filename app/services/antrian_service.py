@@ -10,7 +10,7 @@ from app.models.waktu_bimbingan import WaktuBimbingan
 from app.schemas.antrian_bimbingan import *
 
 from app.routes.file import upload_file
-from app.routes.websocket import manager
+from app.routes.websocket_router import manager
 
 from datetime import datetime
 from uuid import uuid4

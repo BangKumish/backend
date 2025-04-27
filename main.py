@@ -6,16 +6,19 @@ from fastapi.openapi.docs import (
     get_swagger_ui_oauth2_redirect_html
 )
 from fastapi.staticfiles import StaticFiles
+from apscheduler.schedulers.background import BackgroundScheduler
+from app.services.notification_service import send_upcoming_bimbingan_notifications
+from app.config import get_db
 
 from app.routes import dosen, mahasiswa, waktu_bimbingan, antrian_bimbingan, admin, auth, news, file, layanan, mahasiswa_dosen
-# from app.routes import test_notify
-from app.routes import websocket
-# from app.routes import push_notif
+from app.routes import websocket_router
+from app.routes import push_router
 from app.routes import file
 
 from app.config import engine
 from app.models import admin as admin_model, dosen as dosen_model, mahasiswa as mahasiswa_model, waktu_bimbingan as waktu_model, antrian_bimbingan as antrian_model, news as news_model, file as file_model, layanan as layanan_model, mahasiswa_dosen as relasi_model
 from app.models import file as files_model
+from app.models import subscription as subs_model
 
 app = FastAPI(
     title="Dosen Queue System API",
@@ -49,8 +52,8 @@ app.include_router(antrian_bimbingan.router)
 app.include_router(layanan.router)
 
 # app.include_router(test_notify.router)
-app.include_router(websocket.router)
-# app.include_router(push_notif.router)
+app.include_router(websocket_router.router)
+app.include_router(push_router.router)
 app.include_router(file.router)
 # app.include_router(news.router)
 # app.include_router(file.router)
@@ -99,8 +102,22 @@ news_model.Base.metadata.create_all(bind=engine)
 file_model.Base.metadata.create_all(bind=engine)
 layanan_model.Base.metadata.create_all(bind=engine)
 # relasi_model.Base.metadata.create_all(bind=engine)
-# subs_model.Base.metadata.create_all(bind=engine)
+subs_model.Base.metadata.create_all(bind=engine)
 files_model.Base.metadata.create_all(bind=engine)
+
+def start_scheduler():
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(
+        func=lambda: send_upcoming_bimbingan_notifications(next(get_db())),
+        trigger="interval",
+        minutes=1  # Run every minute
+    )
+    scheduler.start()
+
+# Call this function in the FastAPI app startup event
+@app.on_event("startup")
+def on_startup():
+    start_scheduler()
 
 if __name__ == "__main__":
     import uvicorn

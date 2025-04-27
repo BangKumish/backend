@@ -7,7 +7,7 @@ from fastapi import WebSocketDisconnect
 from sqlalchemy.orm import Session
 
 from app.config import get_db
-from app.websockets.websocket_manager import WebSocketManager
+from app.utils.websocket_manager import WebSocketManager
 from app.utils.dependencies import decode_jwt_token
 
 from fastapi import HTTPException

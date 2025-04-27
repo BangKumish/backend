@@ -6,9 +6,7 @@ from app.schemas.waktu_bimbingan import *
 
 def create_waktu_bimbingan(db: Session, waktu_bimbingan_schema: CreateWaktuBimbinganSchema):
     
-    # bimbinganId = generate_bimbingan_id(db, waktu_bimbingan_schema.dosen_inisial)
     db_waktu_bimbingan = WaktuBimbingan(
-        # bimbingan_id=bimbinganId,  # Ini kamu perlu generate manual ID nanti, aku jelasin bawah
         dosen_inisial=waktu_bimbingan_schema.dosen_inisial,
         jumlah_antrian=waktu_bimbingan_schema.jumlah_antrian,
         tanggal=waktu_bimbingan_schema.tanggal,
@@ -18,7 +16,6 @@ def create_waktu_bimbingan(db: Session, waktu_bimbingan_schema: CreateWaktuBimbi
         keterangan=waktu_bimbingan_schema.keterangan
     )
     
-    # Generate custom bimbingan_id based on dosen_alias
     existing_count = db.query(WaktuBimbingan).filter(WaktuBimbingan.dosen_inisial == waktu_bimbingan_schema.dosen_inisial).count()
     db_waktu_bimbingan.bimbingan_id = f"{waktu_bimbingan_schema.dosen_inisial.upper()}{existing_count + 1}"
     
@@ -26,7 +23,6 @@ def create_waktu_bimbingan(db: Session, waktu_bimbingan_schema: CreateWaktuBimbi
     db.commit()
     db.refresh(db_waktu_bimbingan)
     return db_waktu_bimbingan
-
 
 def get_waktu_bimbingan(db: Session, bimbingan_id: str):
     waktu = db.query(WaktuBimbingan).filter(WaktuBimbingan.bimbingan_id == bimbingan_id).first()
