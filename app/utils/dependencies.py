@@ -68,7 +68,7 @@ def decode_jwt_token(token: str) -> str:
         user_id = payload.get("sub")
         if not user_id:
             raise PyJWTError()
-        return user_id
+        return payload
     
     except ExpiredSignatureError:
         raise HTTPException(

@@ -109,10 +109,6 @@ async def update_pengajuan_status_route(id: UUID, data: PengajuanUpdateSchema, d
             status_code=404,
             detail="Pengajuan tidak Ditemukan"
         )
-    
-    # await manager.broadcast({
-    #     "id": str(id), "status": data.status
-    # })
 
     return result
 
@@ -171,6 +167,23 @@ async def ajukan_layanan(
     db.commit()
     db.refresh(pengajuan)
 
+    payload = {
+        "event": "new_pengajuan",
+        "data": {
+            "id": str(pengajuan.id),
+            "status": pengajuan.status,
+            "mahasiswa_nim": pengajuan.mahasiswa_nim,
+            "created_at": pengajuan.created_at.isoformat()
+        }
+    }
+
+    asyncio.create_task(
+        manager.send_json(
+            user_id="adminSiMantap",
+            data=payload
+        )
+    )
+
     main_file_url = upload_to_supabase(berkas_utama)
     save_uploaded_file_metadata(
         db=db,
@@ -188,5 +201,7 @@ async def ajukan_layanan(
                 file_url=lampiran_url,
                 pengajuan_id=pengajuan.id
             )
+    else:
+        pass
 
     return pengajuan

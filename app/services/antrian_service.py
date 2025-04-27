@@ -15,6 +15,8 @@ from app.routes.websocket import manager
 from datetime import datetime
 from uuid import uuid4
 
+import asyncio
+
 def get_antrian_by_id(db: Session, id_antrian: UUID):
     return db.query(AntrianBimbingan)\
         .options(joinedload(AntrianBimbingan.files))\
@@ -77,22 +79,33 @@ async def ambil_antrian_bimbingan(db: Session, waktu_id: str, nim: str, file: Op
             db = db
         )
 
-    for item in daftar:
-        await manager.send_json(
-            user_id=item.mahasiswa_nim,
-            data={
-                "event": "update_antrian",
-                "inisial": dosen.alias,
-                "waktu_id": waktu.bimbingan_id,
-                "tanggal": str(waktu.tanggal),
-                "queue": [
-                    {
-                        "id_antrian": str(item.id_antrian),
-                        "nim": item.mahasiswa_nim,
-                        "status": item.status_antrian
-                    } for item in daftar
-                ]
-            })
+    queue_data = [
+        {
+            "id_antrian": str(item.id_antrian),
+            "nim": item.mahasiswa_nim,
+            "status": item.status_antrian
+        }
+        for item in daftar
+    ]
+
+    payload = {
+        "event": "update_antrian",
+        "inisial": dosen.alias,
+        "waktu_id": waktu.bimbingan_id,
+        "tanggal": str(waktu.tanggal),
+        "queue": queue_data
+    }
+
+    send_tasks = [
+    manager.send_json(user_id=item.mahasiswa_nim, data=payload)
+    for item in daftar
+    ]
+
+    send_tasks.append(
+        manager.send_json(user_id=dosen.alias, data=payload)
+    )
+
+    await asyncio.gather(*send_tasks)
 
     return AmbilAntrianResponse(
         message="Berhasil masuk antrian",
@@ -114,20 +127,18 @@ async def update_status_antrian(db: Session, id_antrian: UUID):
     if not antrian:
         raise HTTPException(
             status_code=404,
-            detail="Antrian tidak Ditemukan."
+            detail="Antrian tidak ditemukan."
         )
 
     original_status = antrian.status_antrian
-    
+
     if antrian.status_antrian == "Menunggu":
         antrian.status_antrian = "Dalam Bimbingan"
-        db.commit()
-        db.refresh(antrian)
-
     elif antrian.status_antrian == "Dalam Bimbingan":
         antrian.status_antrian = "Selesai"
-        db.commit()
-        db.refresh(antrian)
+    
+    db.commit()
+    db.refresh(antrian)
 
     waktu = db.query(WaktuBimbingan).filter(WaktuBimbingan.bimbingan_id == antrian.waktu_id).first()
 
@@ -136,14 +147,14 @@ async def update_status_antrian(db: Session, id_antrian: UUID):
             waktu_id=waktu.bimbingan_id,
             status_antrian="Dalam Bimbingan"
         ).first()
-        
+
         if not already_in_progress:
-            next_position = antrian.position + 1  
+            next_position = antrian.position + 1
 
             next_antrian = db.query(AntrianBimbingan).filter_by(
                 waktu_id=waktu.bimbingan_id,
                 position=next_position,
-                status_antrian="Menunggu"  
+                status_antrian="Menunggu"
             ).first()
 
             if next_antrian:
@@ -170,8 +181,17 @@ async def update_status_antrian(db: Session, id_antrian: UUID):
             ]
         }
 
-        for item in daftar:
-            await manager.send_json(item.mahasiswa_nim, payload)
+        send_tasks = [
+            manager.send_json(user_id=item.mahasiswa_nim, data=payload)
+            for item in daftar
+        ]
+
+        # Kirim ke dosennya juga
+        send_tasks.append(
+            manager.send_json(user_id=antrian.dosen_inisial, data=payload)
+        )
+
+        await asyncio.gather(*send_tasks)
 
     return {"message": f"Status antrian diperbaharui menjadi {antrian.status_antrian}."}
 

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.models.layanan import *
 from app.schemas.layanan import *
 from app.utils.supabase_client import *
-# from app.routes.websocket import manager 
+from app.routes.websocket import manager 
 
 from mimetypes import guess_type
 from datetime import datetime
@@ -104,6 +104,23 @@ def create_pengajuan(db: Session, data: PengajuanLayananCreate):
     db.add(pengajuan)
     db.commit()
     db.refresh(pengajuan)
+
+    payload = {
+        "id": str(pengajuan.id),
+        "status": pengajuan.status,
+        "mahasiswa_nim": pengajuan.mahasiswa_nim,
+        "catatan_admin": pengajuan.catatan_admin,
+        "jadwal_pengambilan": pengajuan.jadwal_pengambilan.isoformat() if pengajuan.jadwal_pengambilan else None
+    }
+
+    loop = asyncio.get_event_loop()
+    loop.create_task(
+        manager.send_json(
+            user_id="adminSiMantap",
+            data=payload
+        )
+    )
+   
     return pengajuan
 
 def get_all_pengajuan(db: Session):
@@ -122,13 +139,28 @@ def update_status_pengajuan(db: Session, id: UUID, data: PengajuanUpdateSchema):
         db.commit()
         db.refresh(pengajuan)
 
-        # asyncio.get_event_loop().create_task(manager.send_personal_message({
-        #     "id": str(pengajuan.id),
-        #     "status": pengajuan.status,
-        #     "mahasiswa_nim": pengajuan.mahasiswa_nim,
-        #     "catatan_admin": pengajuan.catatan_admin,
-        #     "jadwal_pengambilan": pengajuan.jadwal_pengambilan.isoformat() if pengajuan.jadwal_pengambilan else None
-        # }, client_id=str(pengajuan.mahasiswa_nim)))
+        payload = {
+            "id": str(pengajuan.id),
+            "status": pengajuan.status,
+            "mahasiswa_nim": pengajuan.mahasiswa_nim,
+            "catatan_admin": pengajuan.catatan_admin,
+            "jadwal_pengambilan": pengajuan.jadwal_pengambilan.isoformat() if pengajuan.jadwal_pengambilan else None
+        }
+
+        loop = asyncio.get_event_loop()
+        loop.create_task(
+            manager.send_json(
+                user_id=str(pengajuan.mahasiswa_nim),
+                data=payload
+            )
+        )
+
+        loop.create_task(
+            manager.send_json(
+                user_id="adminSiMantap",
+                data=payload
+            )
+        )
 
     return pengajuan
 
