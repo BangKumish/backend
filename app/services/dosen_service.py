@@ -85,7 +85,7 @@ def delete_dosen(db: Session, dosen_id: UUID):
         )
 
     name = dosen_data.name
-    user_data = db.query(User).filter(User.user_id == dosen_id).first
+    user_data = db.query(User).filter(User.user_id == dosen_id).first()
     if user_data:
         db.delete(user_data)
 

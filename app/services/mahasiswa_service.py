@@ -87,7 +87,7 @@ def delete_mahasiswa(db: Session, mahasiswa_id: UUID):
         )
 
     name = _data.nama
-    user_data = db.query(User).filter(User.user_id == mahasiswa_id).first
+    user_data = db.query(User).filter(User.user_id == mahasiswa_id).first()
     if user_data:
         db.delete(user_data)
 
