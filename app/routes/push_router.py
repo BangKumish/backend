@@ -1,5 +1,3 @@
-from dotenv import load_dotenv
-
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import Header
@@ -7,12 +5,12 @@ from fastapi import HTTPException
 
 from sqlalchemy.orm import Session
 
-from app.config import get_db
-from app.models.subscription import PushSubscription
+from app.database.session import get_db
+from app.database.models.subscription import PushSubscription
 from app.schemas.push import PushSubscriptionCreate
 from app.schemas.push import PushNotificationPayload 
-from app.utils.dependencies import decode_jwt_token
-from app.utils.push_service import PushService
+from app.middleware.jwt_handler import decode_access_token
+from app.services.push_service import PushService
 
 import uuid
 
@@ -34,7 +32,7 @@ def subscribe_push(
             raise HTTPException(status_code=401, detail="Invalid Authorization header")
         token = authorization.split(" ")[1]
 
-        payload = decode_jwt_token(token)
+        payload = decode_access_token(token)
         user_id = payload.get("sub")
         role = payload.get("role")
 

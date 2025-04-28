@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import joinedload
 
-from app.models.mahasiswa_dosen import MahasiswaDosen
-from app.models.mahasiswa import Mahasiswa
+from app.database.models.mahasiswa_dosen import MahasiswaDosen
+from app.database.models.mahasiswa import Mahasiswa
 
 from app.schemas.mahasiswa_dosen import *
 

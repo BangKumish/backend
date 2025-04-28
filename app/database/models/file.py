@@ -12,7 +12,7 @@ from sqlalchemy.sql import func
 
 from datetime import datetime
 
-from app.config import Base
+from app.database.session import Base
 
 import uuid
 

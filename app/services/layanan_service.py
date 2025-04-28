@@ -3,11 +3,11 @@ from fastapi import UploadFile
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Session
 
-from app.models.layanan import *
+from app.database.models.layanan import *
 from app.schemas.layanan import *
-from app.utils.supabase_client import *
-from app.utils.push_service import PushService
-from app.models.subscription import PushSubscription
+from app.middleware.supabase_client import *
+from app.services.push_service import PushService
+from app.database.models.subscription import PushSubscription
 from app.routes.websocket_router import manager 
 
 from mimetypes import guess_type
@@ -181,7 +181,8 @@ def update_status_pengajuan(db: Session, id: UUID, data: PengajuanUpdateSchema):
                         "title": "Status Pengajuan Diperbarui",
                         "body": f"Status pengajuan Anda telah diperbarui menjadi: {pengajuan.status}",
                         "data": payload
-                    }
+                    },
+                    db=db
                 )
             except Exception as e:
                 print(f"Failed to send web push notification: {e}")

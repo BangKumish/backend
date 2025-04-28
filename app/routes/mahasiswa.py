@@ -7,8 +7,8 @@ from uuid import UUID
 from app.services.mahasiswa_service import *
 from app.schemas.mahasiswa import *
 
-from app.config import get_db
-from app.utils.dependencies import *
+from app.database.session import get_db
+from app.middleware.security import require_roles
 
 router = APIRouter(prefix="/mahasiswa", tags=["Mahasiswa"])
 

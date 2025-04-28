@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.services.bimbingan_service import *
 from app.schemas.waktu_bimbingan import *
 
-from app.config import get_db
+from app.database.session import get_db
 
 router = APIRouter(prefix="/waktu_bimbingan", tags=["Waktu Bimbingan"])
 

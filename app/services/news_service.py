@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from uuid import UUID
 
-from app.models.news import News
+from app.database.models.news import News
 from app.schemas.news import NewsCreate, NewsUpdate
 from app.services.file_service import upload_file
 

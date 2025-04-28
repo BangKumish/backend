@@ -1,12 +1,12 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
-from app.models.dosen import Dosen
-from app.models.user import User
+from app.database.models.dosen import Dosen
+from app.database.models.user import User
 from app.routes.websocket_router import manager 
 from app.schemas.dosen import *
 from app.schemas.push import PushNotificationPayload
-from app.utils.security import hash_password
+from app.middleware.jwt_handler import hash_password
 
 import asyncio
 import uuid

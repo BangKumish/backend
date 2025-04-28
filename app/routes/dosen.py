@@ -3,14 +3,14 @@ from fastapi.responses import JSONResponse
 
 from sqlalchemy.orm import Session
 
-from app.config import get_db
+from app.database.session import get_db
 
 from app.services.dosen_service import *
 from app.services.bimbingan_service import *
 
 from app.schemas.dosen import *
 
-from app.utils.dependencies import *
+from app.middleware.security import require_roles
 
 router = APIRouter(prefix="/dosen", tags=["Dosen"])
 

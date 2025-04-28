@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.models.waktu_bimbingan import WaktuBimbingan
+from app.database.models.waktu_bimbingan import WaktuBimbingan
 from app.schemas.waktu_bimbingan import *
 
 def create_waktu_bimbingan(db: Session, waktu_bimbingan_schema: CreateWaktuBimbinganSchema):

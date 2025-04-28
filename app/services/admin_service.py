@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
-from app.models.admin import Admin
-from app.models.user import User
+from app.database.models.admin import Admin
+from app.database.models.user import User
 from app.schemas.admin import *
-from app.utils.security import hash_password
+from app.middleware.jwt_handler import hash_password
 
 from uuid import UUID
 

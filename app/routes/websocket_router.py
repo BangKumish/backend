@@ -6,9 +6,9 @@ from fastapi import WebSocketDisconnect
 
 from sqlalchemy.orm import Session
 
-from app.config import get_db
-from app.utils.websocket_manager import WebSocketManager
-from app.utils.dependencies import decode_jwt_token
+from app.database.session import get_db
+from app.middleware.websocket_manager import WebSocketManager
+from app.middleware.jwt_handler import decode_access_token
 
 from fastapi import HTTPException
 from uuid import uuid4
@@ -26,7 +26,7 @@ async def websocket_endpoint(websocket: WebSocket, db: Session = Depends(get_db)
         return
 
     try:
-        payload = decode_jwt_token(token)
+        payload = decode_access_token(token)
         user_id = payload.get("sub")
         role = payload.get("role")
 

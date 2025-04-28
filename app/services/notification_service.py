@@ -1,14 +1,14 @@
 from sqlalchemy.orm import Session 
 
-from app.models.subscription import PushSubscription
+from app.database.models.subscription import PushSubscription
 from app.schemas.push import PushNotificationPayload
-from app.utils.push_service import PushService
+from app.services.push_service import PushService
 
 from datetime import datetime
 from datetime import timedelta
 
-from app.models.waktu_bimbingan import WaktuBimbingan
-from app.models.antrian_bimbingan import AntrianBimbingan
+from app.database.models.waktu_bimbingan import WaktuBimbingan
+from app.database.models.antrian_bimbingan import AntrianBimbingan
 
 push = PushService()
 

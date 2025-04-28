@@ -5,12 +5,12 @@ from sqlalchemy.orm import joinedload
 
 from app.schemas.mahasiswa import *
 
-from app.models.mahasiswa import Mahasiswa
-from app.models.user import User
+from app.database.models.mahasiswa import Mahasiswa
+from app.database.models.user import User
 
-from app.models.mahasiswa_dosen import MahasiswaDosen
+from app.database.models.mahasiswa_dosen import MahasiswaDosen
 
-from app.utils.security import hash_password
+from app.middleware.jwt_handler import hash_password
 import uuid
 
 def create_mahasiswa(db: Session, mahasiswa: MahasiswaSchema):

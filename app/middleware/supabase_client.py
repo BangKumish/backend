@@ -2,16 +2,13 @@ from fastapi import UploadFile
 from mimetypes import guess_type
 from supabase import create_client
 
-import os
+from app.core.config import settings
+
 import uuid
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
-SUPABASE_URL    = os.getenv("SUPABASE_URL")
-SUPABASE_KEY    = os.getenv("SUPABASE_KEY")
-BUCKET_NAME     = os.getenv("SUPABASE_BUCKET")
+SUPABASE_URL    = settings.supabase_url
+SUPABASE_KEY    = settings.supabase_key
+BUCKET_NAME     = settings.supabase_bucket
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 

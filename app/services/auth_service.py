@@ -2,27 +2,20 @@ from sqlalchemy.orm import Session
 from datetime import timedelta
 from fastapi import HTTPException
 
-from app.utils.security import *
+from app.middleware.jwt_handler import create_access_token
+from app.middleware.jwt_handler import create_refresh_token
+from app.middleware.jwt_handler import decode_access_token
+from app.middleware.jwt_handler import verify_password
 
-from app.models.admin import Admin
-from app.models.dosen import Dosen
-from app.models.mahasiswa import Mahasiswa
-from app.models.user import User
+from app.database.models.admin import Admin
+from app.database.models.dosen import Dosen
+from app.database.models.mahasiswa import Mahasiswa
+from app.database.models.user import User
 
-from app.schemas.user import *
+from app.schemas.user import TokenResponse
+from app.schemas.user import UserProfileResponse
 
-# =============================================================== #
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
-    else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
 
-# LOGIN 
 def login_user(db: Session, email: str, password: str):
     user = db.query(User).filter(User.email == email).first()
 
@@ -33,30 +26,71 @@ def login_user(db: Session, email: str, password: str):
         )
 
     userID = user.user_id    
-    token = create_access_token(
+    access_token = create_access_token(
         data={
             "sub": str(userID),
             "role": user.role
-        },
-        expires_delta=timedelta(minutes=60)
+        }
+    )
+    refresh_token = create_refresh_token(
+        data={
+            "sub": str(userID),
+            "role": user.role
+        }
     )
 
     return {
-        "access_token": token,
+        "access_token": access_token,
+        "refresh_token": refresh_token,
         "token_type": "bearer"
     }
 
+def refresh_access_token(db: Session, token: str) -> TokenResponse:
+    payload = decode_access_token(token)
+    if payload.get("type") != "refresh":
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid Token Type",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    user_id: str = payload.get("sub")
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=401,
+            detail="User Not Found",
+            headers={"WWW-Authenticate":"Bearer"}
+        )
+    access_token = create_access_token(
+        data={"sub": str(user.user_id), "role": user.role},
+    )
+    new_refresh_token = create_refresh_token(
+        data={"sub": str(user.user_id), "role": user.role},
+    )
+
+    return TokenResponse(
+        access_token=access_token,
+        refresh_token=new_refresh_token,
+        token_type="bearer"
+    )
+
+def logout_user():
+    pass
+
 def get_user_profile(user: User, db: Session) -> UserProfileResponse:
-    if user.role == "admin":
-        admin = db.query(Admin).filter(Admin.id == user.user_id).first()
-        profile = AdminProfile(role="admin", name=admin.name, email=admin.email)
-    elif user.role == "dosen":
-        dosen = db.query(Dosen).filter(Dosen.id == user.user_id).first()
-        profile = DosenProfile(role="dosen", name=dosen.name, alias=dosen.alias, email=dosen.email)
-    elif user.role == "mahasiswa":
-        mhs = db.query(Mahasiswa).filter(Mahasiswa.id == user.user_id).first()
-        profile = MahasiswaProfile(role="mahasiswa", name=mhs.nama, nim=mhs.nim, email=mhs.email)
-    
+    match user.role:
+        case "admin":
+            admin = db.query(Admin).filter(Admin.id == user.user_id).first()
+            profile = AdminProfile(role="admin", name=admin.name, email=admin.email)
+        case "dosen":
+            dosen = db.query(Dosen).filter(Dosen.id == user.user_id).first()
+            profile = DosenProfile(role="dosen", name=dosen.name, alias=dosen.alias, email=dosen.email)
+        case "mahasiswa":
+            mhs = db.query(Mahasiswa).filter(Mahasiswa.id == user.user_id).first()
+            profile = MahasiswaProfile(role="mahasiswa", name=mhs.nama, nim=mhs.nim, email=mhs.email)
+        case _:
+            raise HTTPException(status_code=400, detail="Invalid user role")
+        
     return UserProfileResponse(
         user_id=user.user_id,
         email=user.email,
@@ -64,18 +98,20 @@ def get_user_profile(user: User, db: Session) -> UserProfileResponse:
         profile=profile
     )
 
-def decode_token(token: str, db: Session):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: str = payload.get("sub")
-        if not user_id:
-            raise HTTPException(status_code=401, detail="Invalid token")
-    except PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid token or expired")
-
-    user = db.query(User).filter(User.user_id == UUID(user_id)).first()
+def decode_token_and_get_user(token: str, db: Session) -> User:
+    payload = decode_access_token(token)
+    user_id: str = payload.get("sub")
+    if user_id is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid Authentication Credentials",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    user = db.query(User).filter(User.user_id == user_id).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
+        raise HTTPException(
+            status_code=401,
+            detail="User Not Found",
+            headers={"WWW-Authenticate":"Bearer"}
+        )
     return user
-

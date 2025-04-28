@@ -4,9 +4,9 @@ from mimetypes import guess_type
 
 from sqlalchemy.orm import Session
 
-from app.models.file import Files
+from app.database.models.file import Files
 from app.schemas.file import *
-from app.utils.supabase_client import *
+from app.middleware.supabase_client import *
 
 # from app.utils.constant import *
 

@@ -6,7 +6,7 @@ from sqlalchemy import String
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 
-from app.config import Base
+from app.database.session import Base
 
 from datetime import datetime
 class MahasiswaDosen(Base):

@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session
 
 from app.services.antrian_service import *
 from app.schemas.antrian_bimbingan import *
-from app.utils.dependencies import require_roles
-from app.config import get_db
+from app.middleware.security import require_roles
+from app.database.session import get_db
 
 router = APIRouter(
     prefix="/antrian", 

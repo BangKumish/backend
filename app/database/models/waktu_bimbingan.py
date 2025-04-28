@@ -9,7 +9,7 @@ from sqlalchemy import Time
 
 from sqlalchemy.orm import relationship
 
-from app.config import Base
+from app.database.session import Base
 
 class WaktuBimbingan(Base):
     __tablename__ = "waktu_bimbingan"

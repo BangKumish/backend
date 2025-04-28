@@ -8,7 +8,7 @@ from typing import Optional
 from app.services.news_service import *
 from app.schemas.news import NewsCreate, NewsUpdate, NewsResponse
 
-from app.config import get_db
+from app.database.session import get_db
 
 from uuid import UUID
 

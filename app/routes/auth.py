@@ -3,40 +3,35 @@ from sqlalchemy.orm import Session
 
 from app.services.auth_service import *
 from app.schemas.user import *
-from app.utils.dependencies import *
+from app.middleware.security import *
+from app.middleware.token_blacklist import add_token_to_blacklist
 
-from app.config import get_db
+from app.database.session import get_db
 from uuid import UUID
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
-# ---------------------------------------
-# POST: /auth/login
-# ---------------------------------------
-@router.post("/login")
+@router.post("/login", response_model=TokenResponse)
 def login_route(login_data: LoginUser, db: Session = Depends(get_db)):
     return login_user(db, login_data.email, login_data.password)
 
-# ---------------------------------------
-# GET: /auth/me
-# ---------------------------------------
 @router.get("/me")
 async def get_profile_route(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     return get_user_profile(user, db)
 
-# ---------------------------------------
-# GET: /auth/test-me (for testing via token param)
-# ---------------------------------------
+@router.post("/refresh", response_model=TokenResponse)
+def refresh_route(token: str, db: Session = Depends(get_db)):
+    return refresh_access_token(db, token)
+
+@router.post("/logout")
+def logout_user(token: str = Depends(oauth2_scheme)):
+    add_token_to_blacklist(token)
+    return {"message": "Logout successful"}
+
 @router.get("/test-me")
 def get_me_test(token: str, db: Session = Depends(get_db)):
-    user = decode_token(token, db)
-    return get_user_profile(user, db)
-
-# ---------------------------------------
-# POST: /auth/logout
-# ---------------------------------------
-@router.post("/logout")
-def logout_user():
-    # Simply instruct the frontend to delete token
-    return {"message": "Logout successful. Please delete token on client side."}
+    user = decode_token_and_get_user(token, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return user

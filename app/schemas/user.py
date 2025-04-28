@@ -79,3 +79,8 @@ class UserProfileResponse(BaseModel):
     email: str
     role: str
     profile: Union[AdminProfile, DosenProfile, MahasiswaProfile]
+
+class TokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"

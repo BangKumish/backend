@@ -4,8 +4,8 @@ from fastapi import UploadFile
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Session
 
-from app.models.antrian_bimbingan import AntrianBimbingan
-from app.models.waktu_bimbingan import WaktuBimbingan
+from app.database.models.antrian_bimbingan import AntrianBimbingan
+from app.database.models.waktu_bimbingan import WaktuBimbingan
 
 from app.schemas.antrian_bimbingan import *
 

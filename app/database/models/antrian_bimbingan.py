@@ -6,7 +6,7 @@ from sqlalchemy import String
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
-from app.config import Base
+from app.database.session import Base
 
 from datetime import datetime
 

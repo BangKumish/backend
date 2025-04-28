@@ -6,12 +6,12 @@ from fastapi import UploadFile
 
 from sqlalchemy.orm import Session
 
-from app.models.file import Files as FileModel
+from app.database.models.file import Files as FileModel
 from app.services.file_service import *
 from app.schemas.file import *
-from app.utils.supabase_client import * 
+from app.middleware.supabase_client import * 
 
-from app.config import get_db
+from app.database.session import get_db
 
 router = APIRouter(prefix="/file", tags=["File"])
 

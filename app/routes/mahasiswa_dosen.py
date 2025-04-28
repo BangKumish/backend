@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.schemas.mahasiswa_dosen import *
 from app.services.relasi_service import *
 
-from app.config import get_db
+from app.database.session import get_db
 
 router = APIRouter(prefix="/relation", tags=["Mahasiswa-Dosen"])
 

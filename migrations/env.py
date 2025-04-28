@@ -1,7 +1,7 @@
 from logging.config import fileConfig
 
-from app.config import Base
-from app.config import DATABASE_URL
+from app.database.session import Base
+from app.database.session import DATABASE_URL
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool

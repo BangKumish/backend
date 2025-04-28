@@ -4,11 +4,11 @@ from typing import List
 
 from app.services.admin_service import *
 from app.schemas.admin import *
-from app.utils.dependencies import require_roles
+from app.middleware.security import require_roles
 
 from uuid import UUID
 
-from app.config import get_db
+from app.database.session import get_db
 
 router = APIRouter(
     prefix="/admin", 
