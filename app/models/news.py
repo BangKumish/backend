@@ -1,15 +1,27 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
-from datetime import datetime
+from sqlalchemy import Column
+from sqlalchemy import DateTime 
+from sqlalchemy import ForeignKey
+from sqlalchemy import String
+from sqlalchemy import Text
+from sqlalchemy.orm import Relationship
+from sqlalchemy.dialects.postgresql import UUID
+
 from app.config import Base
+
+from datetime import datetime
+import uuid
 
 class News(Base):
     __tablename__ = "news"
 
-    id = Column(Integer, primary_key=True, index=True)
+    news_id = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4)
+    author_name = Column(String(255), nullable=False, default="Admin")
+    author_email = Column(String(255), nullable=True)
+    picture_url = Column(String(500), nullable=True)
+    picture_description = Column(String(255), nullable=True)
     title = Column(String(255), nullable=False)
+    subtitle = Column(String(255), nullable=True)
     content = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=datetime.now())
-
-    # admin_id = Column(Integer, ForeignKey("admin.account_id"), nullable=False)
-    # admin = relationship("Admin", back_populates="news")
+    status = Column(String(50), nullable=False, default="draft")
+    created_at = Column(DateTime, default=datetime.now, nullable=False)
+    update_at = Column(DateTime, onupdate=datetime.now)

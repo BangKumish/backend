@@ -14,6 +14,8 @@ from app.schemas.push import PushNotificationPayload
 from app.utils.dependencies import decode_jwt_token
 from app.utils.push_service import PushService
 
+import uuid
+
 router = APIRouter(prefix="/wp", tags=["WebPush"])
 push_service = PushService()
 
@@ -50,14 +52,18 @@ def subscribe_push(
             raise HTTPException(status_code=403, detail="Only mahasiswa can subscribe to push notifications")
 
         existing_subscription = db.query(PushSubscription).filter(
-            PushSubscription.user_id == user_id,
-            PushSubscription.endpoint == subscription.endpoint
+            PushSubscription.user_id == user_id
         ).first()
 
         if existing_subscription:
-            return {"message": "Subscription already exists"}
+            existing_subscription.endpoint = subscription.endpoint
+            existing_subscription.keys_p256dh = subscription.keys.p256dh
+            existing_subscription.keys_auth = subscription.keys.auth
+            db.commit()
+            return {"message": "Subscription updated successfully"}
 
         new_subscription = PushSubscription(
+            id=uuid.uuid4(),
             user_id=user_id,
             endpoint=subscription.endpoint,
             keys_p256dh=subscription.keys.p256dh,

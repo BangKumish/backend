@@ -19,5 +19,4 @@ class Admin(Base):
     password = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.now(), nullable=False)
     update_at = Column(DateTime, onupdate=datetime.now(), nullable=False)
-
-    # user = Relationship("User", back_populates="admin")
+    
