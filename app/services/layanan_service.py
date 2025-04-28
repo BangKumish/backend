@@ -1,5 +1,3 @@
-from fastapi import UploadFile
-
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Session
 
@@ -10,13 +8,10 @@ from app.services.push_service import PushService
 from app.database.models.subscription import PushSubscription
 from app.routes.websocket_router import manager 
 
-from mimetypes import guess_type
 from datetime import datetime
 from uuid import UUID
 
 import asyncio
-import uuid
-import os
 
 def create_layanan(db: Session, layanan: LayananSchema):
     db_layanan = Layanan(
@@ -209,25 +204,6 @@ def get_lampiran_by_pengajuan(db: Session, pengajuan_id: UUID):
 # ============================
 # UPLOAD LAMPIRAN 
 # ============================
-
-def upload_to_supabase(file: UploadFile) -> str:
-    file_ext = file.filename.split('.')[-1]
-    unique_filename = f"{uuid.uuid4()}_{file.filename}"
-    content_type = guess_type(file.filename)[0] or "application/octet-stream"
-
-    file_bytes = file.file.read()
-    
-    supabase.storage.from_(BUCKET_NAME).upload(
-        path = unique_filename,
-        file = file_bytes,
-        file_options={
-            "content-type": content_type,
-            "cache-control": "3600"
-        }
-    )
-
-    public_url = supabase.storage.from_(BUCKET_NAME).get_public_url(unique_filename)
-    return public_url
 
 def save_uploaded_file_metadata(db, nama_dokumen, file_url, pengajuan_id):
     lampiran = LampiranPengajuan(

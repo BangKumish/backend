@@ -1,18 +1,20 @@
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import File
 from fastapi import Form
-
-from typing import Annotated
-from typing import List
+from fastapi import HTTPException
+from fastapi import UploadFile
 
 from sqlalchemy.orm import Session
 
 from app.services.layanan_service import *
 from app.schemas.layanan import * 
-
 from app.middleware.security import require_roles 
 from app.database.session import get_db
+from app.middleware.supabase_client import SupabaseClient
 
 router = APIRouter(prefix="/layanan", tags=["Layanan"])
+supabase = SupabaseClient()
 
 # ============================
 # JENIS LAYANAN
@@ -134,7 +136,7 @@ def get_lampiran_by_pengajuan_route(pengajuan_id: int, db: Session = Depends(get
 
 @router.post("/upload/{pengajuan_id}")
 def upload_lampiran(pengajuan_id: UUID, file: UploadFile = File(...), db: Session = Depends(get_db)):
-    file_url = upload_to_supabase(file)
+    file_url = supabase.upload_to_supabase(file, folder="lampiran")
     metadata = save_uploaded_file_metadata(db, file.filename, file_url, pengajuan_id)
     return {
         "message": "Upload Berhasil",
@@ -184,7 +186,7 @@ async def ajukan_layanan(
         )
     )
 
-    main_file_url = upload_to_supabase(berkas_utama)
+    main_file_url = supabase.upload_to_supabase(berkas_utama, folder="pengajuan")
     save_uploaded_file_metadata(
         db=db,
         nama_dokumen=berkas_utama.filename,
@@ -193,7 +195,7 @@ async def ajukan_layanan(
     )
 
     if lampiran_tambahan:
-        lampiran_url = upload_to_supabase(lampiran_tambahan)
+        lampiran_url = supabase.upload_to_supabase(lampiran_tambahan, folder="pengajuan")
         save_uploaded_file_metadata(
             db=db,
             nama_dokumen=lampiran_tambahan.filename,

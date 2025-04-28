@@ -5,13 +5,14 @@ from uuid import UUID
 
 from app.database.models.news import News
 from app.schemas.news import NewsCreate, NewsUpdate
-from app.services.file_service import upload_file
+from app.middleware.supabase_client import SupabaseClient
 
+supabase = SupabaseClient()
 
 def create_news(db: Session, news_data: NewsCreate, picture: Optional[UploadFile] = None):
     data_dump = news_data.model_dump()
     if picture:
-        picture_url = upload_file(picture)
+        picture_url = supabase.upload_to_supabase(picture, folder="news")
         data_dump["picture_url"] = picture_url
     
     new_news = News(**data_dump)
@@ -34,7 +35,7 @@ def update_news(db: Session, news_id: UUID, news_data: NewsUpdate, picture: Opti
     data_dump = news_data.model_dump(exclude_unset=True)
     
     if picture:
-        picture_url = upload_file(picture)
+        picture_url = supabase.upload_to_supabase(picture, folder="news")
         data_dump["picture_url"] = picture_url
 
     for key, value in data_dump.items():

@@ -9,16 +9,17 @@ from sqlalchemy.orm import Session
 from app.database.models.file import Files as FileModel
 from app.services.file_service import *
 from app.schemas.file import *
-from app.middleware.supabase_client import * 
+from app.middleware.supabase_client import SupabaseClient
 
 from app.database.session import get_db
 
 router = APIRouter(prefix="/file", tags=["File"])
+supabase = SupabaseClient()
 
 @router.post("/", response_model=FileSchema)
 async def upload_file(antrian_id: int, mahasiswa_nim: str, file: UploadFile = File(...), db: Session = Depends(get_db)):
     try:
-        file_url = upload_to_supabase(file)
+        file_url = supabase.upload_to_supabase(file, folder="file")
 
         file_record = FileModel(
             antrian_id = antrian_id,
