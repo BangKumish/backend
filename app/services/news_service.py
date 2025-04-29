@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 from typing import Optional
@@ -50,11 +51,14 @@ def update_news(db: Session, news_id: UUID, news_data: NewsUpdate, picture: Opti
 
 def delete_news(db: Session, news_id: UUID):
     news = get_news_by_id(db, news_id)
+    _title = news.title
     if not news:
-        return None
+        raise HTTPException(status_code=404, detail="No news found")
     db.delete(news)
     db.commit()
-    return news
+    return {
+        "message": f"News {_title} has been removed"
+    }
 
 def search_news(db: Session, query: str):
     return db.query(News).filter(News.title.ilike(f"%{query}%")).all()

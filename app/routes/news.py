@@ -79,12 +79,12 @@ def update_news_route(
         raise HTTPException(status_code=404, detail="News not found")
     return updated_news
 
-@router.delete("/{news_id}", response_model=NewsResponse)
+@router.delete("/{news_id}")
 def delete_news_route(news_id: UUID, db: Session = Depends(get_db)):
-    delete_news = delete_news(db, news_id)
-    if not delete_news:
+    news = delete_news(db, news_id)
+    if not news:
         raise HTTPException(status_code=404, detail="News not found")
-    return delete_news
+    return news
 
 @router.get("/search", response_model=list[NewsResponse])
 def search_news_route(query: str, db: Session = Depends(get_db)):
