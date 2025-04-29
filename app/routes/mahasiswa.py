@@ -1,4 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import File
+from fastapi import Form
+from fastapi import HTTPException
+from fastapi import UploadFile
 from fastapi.responses import JSONResponse
 
 from sqlalchemy.orm import Session
@@ -29,11 +34,30 @@ def get_detail_mahasiswa_route(id: UUID, db: Session = Depends(get_db)):
     return get_detail_mahasiswa(db, id)
 
 @router.put("/{nim}")
-def update_mahasiswa_route(nim: str, update_data: MahasiswaUpdateSchema, db: Session = Depends(get_db)):
-    data = update_mahasiswa(db, nim, update_data)
+def update_mahasiswa_route(
+    nim: str, 
+    nama: Optional[str] = Form(None),
+    email: Optional[str] = Form(None),
+    password: Optional[str] = Form(None),
+    topik_penelitian: Optional[str] = Form(None),
+    semester_saat_ini: Optional[int] = Form(None),
+    status_mahasiswa: Optional[str] = Form(None),
+    avatar: Optional[UploadFile] = File(None),
+    db: Session = Depends(get_db)
+):
+    update_data = MahasiswaUpdateSchema(
+        nama=nama,
+        email=email,
+        password=password,
+        topik_penelitian=topik_penelitian,
+        semester_saat_ini=semester_saat_ini,
+        status_mahasiswa=status_mahasiswa,
+    )
+
+    data = update_mahasiswa(db, nim, update_data, avatar)
     if not data:
         raise HTTPException(status_code = 404, detail = "Mahasiswa Tidak Ditemukan")
-    return {"Message": "Mahasiswa Telah diUpdate", "data":data}
+    return {"Message": "Mahasiswa Telah diUpdate"}
 
 @router.get("/detail/{nim}")
 def get_mahasiswa_detail(nim: str, db: Session = Depends(get_db)):

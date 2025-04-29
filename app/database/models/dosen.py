@@ -21,8 +21,8 @@ class Dosen(Base):
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
-    status_kehadiran = Column(String, default=True)
-    ketersediaan_bimbingan = Column(Boolean, default=True)
+    keterangan = Column(String, default="")
+    status_kehadiran = Column(Boolean, default=True, nullable=True)
     created_at = Column(DateTime, default=datetime.now(), nullable=False)
     update_at = Column(DateTime, onupdate=datetime.now(), nullable=False)
 

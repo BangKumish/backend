@@ -9,16 +9,21 @@ class MahasiswaSchema(BaseModel):
     email: str
     password: str
     topik_penelitian: Optional[str] = None
+    avatar_url: Optional[str] = None  
+    semester_saat_ini: Optional[int] = None  
+    status_mahasiswa: Optional[str] = "Aktif"
 
     class Config:
         from_attributes = True
 
 class MahasiswaUpdateSchema(BaseModel):
-    nim: Optional[str] = None
     nama: Optional[str] = None
     email: Optional[str] = None
     password: Optional[str] = None
     topik_penelitian: Optional[str] = None
+    avatar_url: Optional[str] = None  
+    semester_saat_ini: Optional[int] = None  
+    status_mahasiswa: Optional[str] = None
 
 class MahasiswaCreateSchema(BaseModel):
     nim: str
@@ -30,3 +35,7 @@ class MahasiswaResponseSchema(BaseModel):
     nama: str
     email: str
     password: str
+    topik_penelitian: Optional[str] = None
+    avatar_url: Optional[str] = None  
+    semester_saat_ini: Optional[int] = None  
+    status_mahasiswa: Optional[str] = None

@@ -28,4 +28,4 @@ class WaktuBimbingan(Base):
     keterangan = Column(Text, nullable=True)
 
     dosen = relationship("Dosen", back_populates="waktu_bimbingan")
-    antrian_bimbingan = relationship("AntrianBimbingan", back_populates="waktu_bimbingan")
+    antrian_bimbingan = relationship("AntrianBimbingan", back_populates="waktu_bimbingan", cascade="all, delete-orphan", uselist=True)

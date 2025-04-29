@@ -1,5 +1,6 @@
 from sqlalchemy import Column
 from sqlalchemy import DateTime
+from sqlalchemy import Integer
 from sqlalchemy import String 
 from sqlalchemy.orm import Relationship
 from sqlalchemy.dialects.postgresql import UUID
@@ -19,6 +20,10 @@ class Mahasiswa(Base):
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
     topik_penelitian = Column(String)
+
+    avatar_url = Column(String)
+    semester_saat_ini = Column(Integer)
+    status_mahasiswa = Column(String, default="Aktif")
 
     created_at = Column(DateTime, default=datetime.now(), nullable=False)
     update_at = Column(DateTime, onupdate=datetime.now(), nullable=False)

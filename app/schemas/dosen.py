@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from pydantic import ConfigDict
 from typing import Optional
 from uuid import UUID
 
@@ -9,10 +10,10 @@ class DosenSchema(BaseModel):
     alias: str
     email: str
     password: str
-    status_kehadiran: str
-    ketersediaan_bimbingan: bool = True
-    class Config:
-        from_attributes = True
+    keterangan: Optional[str] = "Ruangan Prodi"
+    status_kehadiran: Optional[bool] = True
+    
+    model_config = ConfigDict(from_attributes=True)
 
 class DosenUpdateSchema(BaseModel):
     nomor_induk: Optional[str] = None
@@ -20,8 +21,8 @@ class DosenUpdateSchema(BaseModel):
     alias: Optional[str] = None
     email: Optional[str] = None
     password: Optional[str] = None
-    status_kehadiran: Optional[str] = None
-    ketersediaan_bimbingan: Optional[bool] = None
+    keterangan: Optional[str] = None
+    status_kehadiran: Optional[bool] = None
 
 class DosenCreateSchema(BaseModel):
     nomor_induk: str
@@ -29,8 +30,8 @@ class DosenCreateSchema(BaseModel):
     alias: str
     email: str
     password: str
-    status_kehadiran: str
-    ketersediaan_bimbingan: bool = True
+    keterangan: Optional[str] = "Ruangan Prodi"
+    status_kehadiran: Optional[bool] = True
 
 class DosenResponseSchema(BaseModel):
     nomor_induk: str
@@ -38,6 +39,8 @@ class DosenResponseSchema(BaseModel):
     alias: str
     email: str
     password: str
-    status_kehadiran: str
-    ketersediaan_bimbingan: bool 
+    keterangan: Optional[str] = "Ruangan Prodi"
+    status_kehadiran: Optional[bool] = True
+
+    model_config = ConfigDict(from_attributes=True) 
 

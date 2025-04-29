@@ -12,7 +12,7 @@ class WaktuBimbinganSchema(BaseModel):
     bimbingan_id: str
     dosen_inisial: str
     jumlah_antrian: int
-    is_active: bool
+    is_active: bool = True
     tanggal: date
     waktu_mulai: time
     waktu_selesai: time
@@ -25,6 +25,7 @@ class WaktuBimbinganSchema(BaseModel):
 class CreateWaktuBimbinganSchema(BaseModel):
     dosen_inisial: str
     jumlah_antrian: Optional[int] = 5  # default 5
+    is_active: Optional[bool] = True
     tanggal: date
     waktu_mulai: time
     waktu_selesai: time

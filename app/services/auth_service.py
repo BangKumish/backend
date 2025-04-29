@@ -12,6 +12,9 @@ from app.database.models.dosen import Dosen
 from app.database.models.mahasiswa import Mahasiswa
 from app.database.models.user import User
 
+from app.schemas.user import AdminProfile
+from app.schemas.user import DosenProfile
+from app.schemas.user import MahasiswaProfile
 from app.schemas.user import TokenResponse
 from app.schemas.user import UserProfileResponse
 

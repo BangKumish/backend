@@ -1,17 +1,17 @@
 from fastapi import HTTPException
-
+from fastapi import UploadFile
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import joinedload
 
 from app.schemas.mahasiswa import *
-
 from app.database.models.mahasiswa import Mahasiswa
 from app.database.models.user import User
-
 from app.database.models.mahasiswa_dosen import MahasiswaDosen
-
 from app.middleware.jwt_handler import hash_password
+from app.middleware.supabase_client import SupabaseClient
+
 import uuid
+supabase = SupabaseClient()
 
 def create_mahasiswa(db: Session, mahasiswa: MahasiswaSchema):
     hashed_password = hash_password(mahasiswa.password) 
@@ -60,19 +60,24 @@ def get_mahasiswa_detail(db: Session, nim:str):
         .first()
     )
 
-def update_mahasiswa(db: Session, nim: str, mahasiswa_data: MahasiswaUpdateSchema):
+def update_mahasiswa(db: Session, nim: str, mahasiswa_data: MahasiswaUpdateSchema, avatar: Optional[UploadFile] = None):
     mahasiswa = db.query(Mahasiswa).filter(Mahasiswa.nim == nim).first()
-    
     if not mahasiswa:
         return None
     
     update_data = mahasiswa_data.model_dump(exclude_unset=True)
+    if avatar:
+        avatar_url = supabase.upload_to_supabase(avatar, folder="mahasiswa")
+        update_data["avatar_url"] = avatar_url
 
-    if "password" in update_data:
+    if update_data["password"] in update_data:
         update_data["password"] = hash_password(update_data["password"])
 
     for key, value in update_data.items():
-        setattr(mahasiswa, key, value)
+        if value is not None:
+            if isinstance(value, str):
+                value = value.strip()
+            setattr(mahasiswa, key, value)
 
     db.commit()
     db.refresh(mahasiswa)
