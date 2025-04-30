@@ -38,7 +38,7 @@ def get_dosen_route(inisial: str, db: Session = Depends(get_db)):
             "alias": data.alias,
             "email": data.email,
             "status_kehadiran": data.status_kehadiran,
-            "ketersediaan_bimbingan": data.ketersediaan_bimbingan,
+            "keterangan": data.keterangan
         },
         "waktu_bimbingan": [
             {

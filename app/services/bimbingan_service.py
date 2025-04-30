@@ -44,9 +44,9 @@ async def create_waktu_bimbingan(db: Session, waktu_bimbingan_schema: CreateWakt
             data=payload
         )
 
-    await manager.broadcast_all(
-        message=payload
-    )
+    # await manager.broadcast_all(
+    #     message=payload
+    # )
     
     db.add(db_waktu_bimbingan)
     db.commit()

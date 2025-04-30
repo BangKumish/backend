@@ -32,11 +32,6 @@ async def ambil_antrian_bimbingan(db: Session, waktu_id: str, nim: str, file: Op
         )
     
     dosen = waktu.dosen
-    if not dosen.ketersediaan_bimbingan:
-        raise HTTPException(
-            status_code=400,
-            detail="Dosen tidak tersedia untuk bimbingan."
-        )
     
     sudah_ada = db.query(AntrianBimbingan).filter_by(mahasiswa_nim=nim, waktu_id=waktu_id).first()
     if sudah_ada:

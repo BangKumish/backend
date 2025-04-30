@@ -71,7 +71,8 @@ def update_dosen(db: Session, nomor_induk: str, dosen_data: DosenUpdateSchema):
         asyncio.get_event_loop().create_task(manager.broadcast_all({
             "Inisial Dosen": dosen.alias,
             "Nama Dosen": dosen.name,
-            "Status Kehadrian": dosen.status_kehadiran
+            "Status Kehadiran": dosen.status_kehadiran,
+            "Keterangan": dosen.keterangan
         }))
     
     return dosen
