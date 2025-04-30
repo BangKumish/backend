@@ -1,5 +1,5 @@
 # Use official Python base image
-FROM python:3-12-slim-bookworm
+FROM python:3.12.10-slim
 
 # Set working directory
 WORKDIR /app
@@ -9,7 +9,8 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Copy the rest of the code
-COPY . .
+COPY ./app ./app
+COPY alembic.ini .
 
 # Expose port
 EXPOSE 8000
