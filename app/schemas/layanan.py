@@ -66,6 +66,8 @@ class PengajuanLayananBase(BaseModel):
     status: Optional[str] = "Menunggu"
     catatan_admin: Optional[str] = None
     jadwal_pengambilan: Optional[datetime] = None
+    timestamp_diproses: Optional[datetime] = None
+    timestamp_selesai: Optional[datetime] = None
 
 class PengajuanLayananCreate(BaseModel):
     mahasiswa_nim: str
@@ -75,6 +77,8 @@ class PengajuanUpdateSchema(BaseModel):
     status: str
     catatan_admin: Optional[str] = ""
     jadwal_pengambilan: Optional[datetime] = None
+    timestamp_diproses: Optional[datetime] = None
+    timestamp_selesai: Optional[datetime] = None
 
 # ================================
 # LAMPIRAN LAYANAN
@@ -102,6 +106,8 @@ class PengajuanLayananResponse(BaseModel):
     status: str 
     catatan_admin: Optional[str] = None
     jadwal_pengambilan: Optional[datetime] = None
+    timestamp_diproses: Optional[datetime] = None
+    timestamp_selesai: Optional[datetime] = None
     lampiran: List[LampiranPengajuanResponse]
 
     model_config = ConfigDict(from_attributes=True)

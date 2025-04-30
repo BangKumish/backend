@@ -70,7 +70,7 @@ def update_mahasiswa(db: Session, nim: str, mahasiswa_data: MahasiswaUpdateSchem
         avatar_url = supabase.upload_to_supabase(avatar, folder="mahasiswa")
         update_data["avatar_url"] = avatar_url
 
-    if update_data["password"] in update_data:
+    if "password" in update_data:
         update_data["password"] = hash_password(update_data["password"])
 
     for key, value in update_data.items():

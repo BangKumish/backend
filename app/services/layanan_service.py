@@ -134,6 +134,12 @@ def update_status_pengajuan(db: Session, id: UUID, data: PengajuanUpdateSchema):
         pengajuan.status = data.status
         pengajuan.catatan_admin = data.catatan_admin
         pengajuan.jadwal_pengambilan = data.jadwal_pengambilan
+
+        if data.status == "Diproses":
+            pengajuan.timestamp_diproses = datetime.now()
+        elif data.status == "Selesai":
+            pengajuan.timestamp_selesai = datetime.now()
+
         db.commit()
         db.refresh(pengajuan)
 
@@ -142,7 +148,9 @@ def update_status_pengajuan(db: Session, id: UUID, data: PengajuanUpdateSchema):
             "status": pengajuan.status,
             "mahasiswa_nim": pengajuan.mahasiswa_nim,
             "catatan_admin": pengajuan.catatan_admin,
-            "jadwal_pengambilan": pengajuan.jadwal_pengambilan.isoformat() if pengajuan.jadwal_pengambilan else None
+            "jadwal_pengambilan": pengajuan.jadwal_pengambilan.isoformat() if pengajuan.jadwal_pengambilan else None,
+            "timestamp_diproses": pengajuan.timestamp_diproses.isoformat() if pengajuan.timestamp_diproses else None,
+            "timestamp_selesai": pengajuan.timestamp_selesai.isoformat() if pengajuan.timestamp_selesai else None
         }
 
         loop = asyncio.get_event_loop()
