@@ -10,7 +10,6 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Copy the rest of the code
 COPY ./app ./app
-COPY ./migrations ./migrations
 COPY ./static ./static
 
 # Expose port
