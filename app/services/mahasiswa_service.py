@@ -54,7 +54,8 @@ def get_mahasiswa_detail(db: Session, nim:str):
     return (
         db.query(Mahasiswa)
         .options(
-            joinedload(Mahasiswa.dosen_relation).joinedload(MahasiswaDosen.dosen)
+            joinedload(Mahasiswa.dosen_relation).joinedload(MahasiswaDosen.dosen),
+            joinedload(Mahasiswa.antrian_bimbingan)
         )
         .filter(Mahasiswa.nim == nim)
         .first()

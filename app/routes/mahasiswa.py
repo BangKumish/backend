@@ -13,6 +13,7 @@ from app.services.mahasiswa_service import *
 from app.schemas.mahasiswa import *
 
 from app.database.session import get_db
+from app.database.models.antrian_bimbingan import AntrianBimbingan
 from app.middleware.security import require_roles
 
 router = APIRouter(prefix="/mahasiswa", tags=["Mahasiswa"])
@@ -60,13 +61,22 @@ def update_mahasiswa_route(
     return {"Message": "Mahasiswa Telah diUpdate"}
 
 @router.get("/detail/{nim}")
-def get_mahasiswa_detail(nim: str, db: Session = Depends(get_db)):
-    mahasiswa = get_mahasiswa(db, nim)
+def get_mahasiswa_detail_route(nim: str, db: Session = Depends(get_db)):
+    mahasiswa = get_mahasiswa_detail(db, nim)
     if not mahasiswa:
         raise HTTPException(
             status_code=404,
             detail="Mahasiswa not Found"
         )
+    
+    antrian_bimbingan_records = db.query(AntrianBimbingan).filter(AntrianBimbingan.mahasiswa_nim == nim).all()
+
+    antrian_bimbingan_count_by_dosen = {}
+    for antrian in antrian_bimbingan_records:
+        dosen_alias = antrian.dosen_inisial
+        if dosen_alias not in antrian_bimbingan_count_by_dosen:
+            antrian_bimbingan_count_by_dosen[dosen_alias] = 0
+        antrian_bimbingan_count_by_dosen[dosen_alias] += 1
 
     dosen_roles = {
         "Dosen Wali": None,
@@ -85,6 +95,14 @@ def get_mahasiswa_detail(nim: str, db: Session = Depends(get_db)):
                 "alias": relasi.dosen.alias
             }
 
+    bimbingan = []    
+    for antrian in mahasiswa.antrian_bimbingan:
+        bimbingan.append({
+            "id_antrian": str(antrian.id_antrian),
+            "dosen_inisial": antrian.dosen_inisial,
+            "status_antrian": antrian.status_antrian
+        })
+
     response = {
         "mahasiswa": {
             "id": str(mahasiswa.id),
@@ -96,7 +114,10 @@ def get_mahasiswa_detail(nim: str, db: Session = Depends(get_db)):
                 "status": "Belum Ditentukan"
             }
         },
-        "mahasiswa_dosen": dosen_roles
+        "mahasiswa_dosen": dosen_roles,
+        "bimbingan": bimbingan,
+        "jumlah_bimbingan": len(mahasiswa.antrian_bimbingan),
+        "jumlah_bimbingan_by_dosen": antrian_bimbingan_count_by_dosen
     }
 
     return JSONResponse(content=response)
