@@ -26,5 +26,5 @@ COPY ./static ./static
 EXPOSE 8000
 
 # Run the server
-# ENTRYPOINT ["uvicorn"]
-# CMD ["app.main:app", "--host", "0.0.0.0", "--port", "${PORT:-8000}", "workers", "2"]
+ENTRYPOINT ["uvicorn"]
+CMD ["app.main:app", "--host", "0.0.0.0", "--port", "${PORT:-8000}", "workers", "2"]
