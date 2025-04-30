@@ -14,7 +14,7 @@ import uuid
 class Dosen(Base):
     __tablename__ = "dosen"
 
-    id = Column(UUID(as_uuid=True), unique=True, default=uuid.uuid4(), index=True)
+    id = Column(UUID(as_uuid=True), unique=True, default=uuid.uuid4, index=True)
 
     alias = Column(String, unique=True, nullable=False, primary_key=True)
     nomor_induk = Column(String)
