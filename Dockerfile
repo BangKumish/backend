@@ -6,9 +6,12 @@ WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    build-essential \
-    curl \
+    gcc \
     libpq-dev \
+    build-essential \
+    libffi-dev \
+    libssl-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install dependencies
