@@ -22,7 +22,7 @@ def create_mahasiswa(db: Session, mahasiswa: MahasiswaSchema):
         nim=mahasiswa.nim,
         nama=mahasiswa.nama,
         email=mahasiswa.email,
-        password=hashed_password,
+        password=hashed_password
     )
     db.add(db_mahasiswa)
     db.commit()
@@ -71,9 +71,14 @@ def update_mahasiswa(db: Session, nim: str, mahasiswa_data: MahasiswaUpdateSchem
         avatar_url = supabase.upload_to_supabase(avatar, folder="mahasiswa")
         update_data["avatar_url"] = avatar_url
 
-    if "password" in update_data:
-        update_data["password"] = hash_password(update_data["password"])
+    user = db.query(User).filter(User.user_id == mahasiswa.id).first()
+    if user:
+        if "email" in update_data and update_data["email"] is not None:
+            user.email = update_data["email"]
 
+        db.commit()
+        db.refresh(user)
+    
     for key, value in update_data.items():
         if value is not None:
             if isinstance(value, str):

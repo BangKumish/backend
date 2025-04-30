@@ -35,3 +35,15 @@ def get_me_test(token: str, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=401, detail="Invalid token")
     return user
+
+@router.post("/forgot-password")
+def forgot_password_route(email: str, db: Session = Depends(get_db)):
+    return forgot_password(db, email)
+
+@router.post("/reset-password")
+def reset_password_route(
+    token: str, 
+    new_password: str, 
+    db: Session = Depends(get_db)
+):
+    return reset_password(db, token, new_password)

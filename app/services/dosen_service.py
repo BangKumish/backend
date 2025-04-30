@@ -21,8 +21,6 @@ def create_dosen(db: Session, dosen: DosenCreateSchema):
         name = dosen.name,
         email = dosen.email,
         password = hashed_password,
-        status_kehadiran = dosen.status_kehadiran,
-        ketersediaan_bimbingan = dosen.ketersediaan_bimbingan,
         alias = dosen.alias,
     )
     db.add(db_dosen)
@@ -58,8 +56,13 @@ def update_dosen(db: Session, nomor_induk: str, dosen_data: DosenUpdateSchema):
     
     update_data = dosen_data.model_dump(exclude_unset=True)
 
-    if "password" in update_data:
-        update_data["password"] = hash_password(update_data["password"])
+    user = db.query(User).filter(User.user_id == Dosen.id).first()
+    if user:
+        if "email" in update_data and update_data["email"] is not None:
+            user.email = update_data["email"]
+
+        db.commit()
+        db.refresh(user)
 
     for key, value in update_data.items():
         setattr(dosen, key, value)

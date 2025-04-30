@@ -15,6 +15,11 @@ class Settings(BaseSettings):
     vapid_public_key: str
     access_token_expire_minutes: int = 60 
     timezone: str = "Asia/Jakarta"
+    smtp_host: str
+    smtp_port: int 
+    smtp_user: str
+    smtp_password: str
+    frontend_url: str = "http://localhost:5173"
 
     class Config:
         env_file = ".env"

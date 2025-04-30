@@ -37,12 +37,6 @@ class UserResponse(UserBase):
     id: UUID
     email: str
     role: str
-    # full_name: Optional[str]
-    # avatar_url: Optional[str]
-    # ktm_url: Optional[str]
-    # is_active: bool
-    # email_verified: bool
-    # created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -84,3 +78,10 @@ class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
+
+# class ResetPasswordSchema(BaseModel):
+#     token: str
+#     new_password: str
+
+# class EmailSchema(BaseModel):
+#     email: str

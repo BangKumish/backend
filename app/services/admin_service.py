@@ -52,8 +52,13 @@ def update_admin(db: Session, admin_id: UUID, data: AdminUpdateSchema):
     
     update_data = data.model_dump(exclude_unset=True)
 
-    if "password" in update_data:
-        update_data["password"] = hash_password(update_data["password"])
+    user = db.query(User).filter(User.user_id == Admin.id).first()
+    if user:
+        if "email" in update_data and update_data["email"] is not None:
+            user.email = update_data["email"]
+
+        db.commit()
+        db.refresh(user)
 
     for key, value in update_data.items():
         setattr(admin, key, value)

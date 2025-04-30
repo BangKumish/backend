@@ -7,7 +7,7 @@ class MahasiswaSchema(BaseModel):
     nim: str
     nama: str
     email: str
-    password: str
+    # password: str
     topik_penelitian: Optional[str] = None
     avatar_url: Optional[str] = None  
     semester_saat_ini: Optional[int] = None  
@@ -19,7 +19,7 @@ class MahasiswaSchema(BaseModel):
 class MahasiswaUpdateSchema(BaseModel):
     nama: Optional[str] = None
     email: Optional[str] = None
-    password: Optional[str] = None
+    # password: Optional[str] = None
     topik_penelitian: Optional[str] = None
     avatar_url: Optional[str] = None  
     semester_saat_ini: Optional[int] = None  
@@ -29,12 +29,13 @@ class MahasiswaCreateSchema(BaseModel):
     nim: str
     nama: str
     email: str
+    password: str
 
 class MahasiswaResponseSchema(BaseModel):
     nim: str
     nama: str
     email: str
-    password: str
+    # password: str
     topik_penelitian: Optional[str] = None
     avatar_url: Optional[str] = None  
     semester_saat_ini: Optional[int] = None  
