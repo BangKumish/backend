@@ -72,12 +72,16 @@ def update_mahasiswa(db: Session, nim: str, mahasiswa_data: MahasiswaUpdateSchem
         update_data["avatar_url"] = avatar_url
 
     user = db.query(User).filter(User.user_id == mahasiswa.id).first()
-    if user:
-        if "email" in update_data and update_data["email"] is not None:
-            user.email = update_data["email"]
-
-        db.commit()
-        db.refresh(user)
+    
+    new_email = update_data.get("email")
+    if user and new_email is not None and new_email != user.email:
+        existing_user = db.query(User).filter(User.email == new_email).first()
+        if not existing_user or existing_user.user_id == user.user_id:
+            user.email = new_email
+            db.commit()
+            db.refresh(user)
+        else:
+            pass
     
     for key, value in update_data.items():
         if value is not None:
