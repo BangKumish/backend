@@ -59,7 +59,11 @@ def update_dosen(db: Session, nomor_induk: str, dosen_data: DosenUpdateSchema):
     user = db.query(User).filter(User.user_id == Dosen.id).first()
     if user:
         if "email" in update_data and update_data["email"] is not None:
-            user.email = update_data["email"]
+            if update_data["email"] != user.email:
+                existing_user = db.query(User).filter(User.email == update_data["email"]).first()
+                if existing_user and existing_user.user_id != user.user_id:
+                    raise HTTPException(status_code=400, detail="Email already in use")
+                user.email = update_data["email"]
 
         db.commit()
         db.refresh(user)

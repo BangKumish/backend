@@ -12,7 +12,7 @@ from app.database.session import get_db
 
 from uuid import UUID
 
-router = APIRouter(prefix="/news", tags=["News"])
+router = APIRouter(prefix="/berita", tags=["Berita"])
 
 @router.post("/", response_model=NewsResponse)
 def create_news_route(
