@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
 from sqlalchemy.orm import Session
@@ -14,15 +15,15 @@ from app.middleware.security import require_roles
 
 router = APIRouter(prefix="/dosen", tags=["Dosen"])
 
-@router.post("/", response_model=DosenSchema, dependencies=[Depends(require_roles("admin"))])
+@router.post("/", response_model=DosenResponseSchema, dependencies=[Depends(require_roles("admin"))])
 def create_dosen_route(dosen: DosenCreateSchema, db: Session = Depends(get_db)):
     return create_dosen(db, dosen)
 
-@router.get("/all", response_model=list[DosenSchema])
+@router.get("/all", response_model=list[DosenResponseSchema])
 def get_all_dosen_route(db: Session = Depends(get_db)):
     return get_all_dosen(db)
 
-@router.get("/{inisial}", response_model=DosenSchema)
+@router.get("/{inisial}", response_model=DosenResponseSchema)
 def get_dosen_route(inisial: str, db: Session = Depends(get_db)):
     
     data = get_dosen(db, inisial)
@@ -58,9 +59,12 @@ async def update_dosen_route(inisial: str, dosen_data: DosenUpdateSchema, db: Se
     dosen = update_dosen(db, inisial, dosen_data)
     if not dosen:
         raise HTTPException(status_code = 404, detail = "Dosen Tidak Ditemukan")
-    return {"Message": "Dosen Telah diUpdate", "data":dosen}
+    return {
+        "Message": "Dosen Telah diUpdate", 
+        "data":jsonable_encoder(DosenResponseSchema.model_validate(dosen))
+    }
 
-@router.get("/admin/{dosen_id}")
+@router.get("/admin/{dosen_id}", response_model=DosenResponseSchema)
 def get_dosen_detail_route(dosen_id: UUID, db: Session = Depends(get_db)):
     return get_detail_dosen(db, dosen_id)
 
