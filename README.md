@@ -1,6 +1,6 @@
 # SIMANTAP Backend
 ## Description
-This is the backend service for the SIMANTAP SIstem Manajemen ANTrian Administrasi dan bimbingan Prodi. An application to help managing [Antrian Administrasi dan Bimbingan Program Studi Teknik Informatika ITERA]. This application using Python FastAPI to serve backend and React to serve frontend side <a href="https://github.com/muhammadfabil/tea">Frontend Repo</a> or you can test the fully running application <a href:"https://simantap.ifsyscenter.my.id">Here</a>. 
+This is the backend service for the SIMANTAP SIstem Manajemen ANTrian Administrasi dan bimbingan Prodi. An application to help managing [Antrian Administrasi dan Bimbingan Program Studi Teknik Informatika ITERA]. This application using Python FastAPI to serve backend and React to serve frontend side <a href="https://github.com/muhammadfabil/tea">Frontend Repo</a> or you can test the fully running application <a href="https://simantap.ifsyscenter.my.id">Here</a>. 
 
 ## Features
 - [Feature 1]: YADA YADA YADA
