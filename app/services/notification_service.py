@@ -1,16 +1,27 @@
+from datetime import datetime
+from datetime import timedelta
 from sqlalchemy.orm import Session 
 
 from app.database.models.subscription import PushSubscription
+from app.database.models.waktu_bimbingan import WaktuBimbingan
 from app.schemas.push import PushNotificationPayload
 from app.services.push_service import PushService
 
-from datetime import datetime
-from datetime import timedelta
-
-from app.database.models.waktu_bimbingan import WaktuBimbingan
-from app.database.models.antrian_bimbingan import AntrianBimbingan
-
+sent_notifications = {}
 push = PushService()
+
+def add_notification(notification_id):
+    sent_notifications[notification_id] = datetime.now()
+
+def clear_old_notifications():
+    now = datetime.now()
+    cutoff_time = now - timedelta(days=1)  # Clear notifications older than 1 day
+    global sent_notifications
+    sent_notifications = {
+        nid: timestamp for nid, timestamp in sent_notifications.items()
+        if timestamp > cutoff_time
+    }
+    print("✅ Cleared old notifications from sent_notifications")
 
 async def send_push_notification(
     db: Session,
@@ -50,30 +61,49 @@ def send_upcoming_bimbingan_notifications(db: Session):
         for antrian in session.antrian_bimbingan:
             mahasiswa_nim = antrian.mahasiswa_nim
 
-            subscription = db.query(PushSubscription).filter(
-                PushSubscription.user_id == mahasiswa_nim
-            ).first()
+            upcoming_sessions = db.query(WaktuBimbingan).filter(
+                WaktuBimbingan.tanggal == session.tanggal,
+                WaktuBimbingan.waktu_mulai.between(now.time(), thirty_minutes_later.time())
+            ).all()
 
-            if subscription:
-                try:
-                    push.send_notification(
-                        subscription={
-                            "endpoint": subscription.endpoint,
-                            "keys": {
-                                "p256dh": subscription.keys_p256dh,
-                                "auth": subscription.keys_auth
-                            }
-                        },
-                        data={
-                            "title": "Pengingat Bimbingan",
-                            "body": f"Bimbingan Anda akan dimulai pada {session.waktu_mulai.strftime('%H:%M')} di {session.lokasi}.",
-                            "data": {
-                                "bimbingan_id": session.bimbingan_id,
-                                "tanggal": session.tanggal.isoformat(),
-                                "waktu_mulai": session.waktu_mulai.strftime('%H:%M'),
-                                "lokasi": session.lokasi
-                            }
-                        }
-                    )
-                except Exception as e:
-                    print(f"Failed to send notification to {mahasiswa_nim}: {e}")
+            for session in upcoming_sessions:
+                for antrian in session.antrian_bimbingan:
+                    notification_id = f"{antrian.id_antrian}-{antrian.mahasiswa_nim}-{str(session.waktu_mulai)}"
+                    
+                    if notification_id in sent_notifications:
+                        continue
+
+                    if antrian.status in ["Dalam Bimbingan", "Selesai"]:
+                        continue
+
+                    mahasiswa_nim = antrian.mahasiswa_nim
+
+                    subscription = db.query(PushSubscription).filter(
+                        PushSubscription.user_id == mahasiswa_nim
+                    ).first()
+
+                    if subscription:
+                        try:
+                            push.send_notification(
+                                subscription={
+                                    "endpoint": subscription.endpoint,
+                                    "keys": {
+                                        "p256dh": subscription.keys_p256dh,
+                                        "auth": subscription.keys_auth
+                                    }
+                                },
+                                data={
+                                    "title": "Pengingat Bimbingan",
+                                    "body": f"Bimbingan Anda akan dimulai pada {session.waktu_mulai.strftime('%H:%M')} di {session.lokasi}.",
+                                    "data": {
+                                        "bimbingan_id": session.bimbingan_id,
+                                        "tanggal": session.tanggal.isoformat(),
+                                        "waktu_mulai": session.waktu_mulai.strftime('%H:%M'),
+                                        "lokasi": session.lokasi
+                                    }
+                                }
+                            )
+
+                            sent_notifications.add(notification_id)
+                        except Exception as e:
+                            print(f"Failed to send notification to {mahasiswa_nim}: {e}")
