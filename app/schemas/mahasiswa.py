@@ -7,7 +7,7 @@ class MahasiswaSchema(BaseModel):
     nim: str
     nama: str
     email: str
-    # password: str
+    password: str
     topik_penelitian: Optional[str] = None
     avatar_url: Optional[str] = None  
     semester_saat_ini: Optional[int] = None  
@@ -32,10 +32,10 @@ class MahasiswaCreateSchema(BaseModel):
     password: str
 
 class MahasiswaResponseSchema(BaseModel):
+    id: UUID
     nim: str
     nama: str
     email: str
-    # password: str
     topik_penelitian: Optional[str] = None
     avatar_url: Optional[str] = None  
     semester_saat_ini: Optional[int] = None  

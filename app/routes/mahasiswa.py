@@ -18,8 +18,9 @@ from app.middleware.security import require_roles
 
 router = APIRouter(prefix="/mahasiswa", tags=["Mahasiswa"])
 
-@router.post("/", response_model=MahasiswaCreateSchema)
-def create_mahasiswa_route(mahasiswa: MahasiswaResponseSchema, db: Session = Depends(get_db)):
+@router.post("/", response_model=MahasiswaResponseSchema)
+def create_mahasiswa_route(mahasiswa: MahasiswaCreateSchema, db: Session = Depends(get_db)):
+    # Now using MahasiswaCreateSchema which doesn't require ID
     return create_mahasiswa(db, mahasiswa)
 
 @router.get("/all", response_model=list[MahasiswaCreateSchema])

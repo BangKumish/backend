@@ -4,7 +4,7 @@ from typing import List
 
 class Settings(BaseSettings):
     app_name: str = "Dosen Queue System API"
-    cors_origins: List[str]
+    cors_origins: List[str] = ["*"]
     database_url: str
     secret_key: str
     algorithm: str = "HS256"

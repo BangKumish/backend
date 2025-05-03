@@ -13,8 +13,10 @@ from app.middleware.supabase_client import SupabaseClient
 import uuid
 supabase = SupabaseClient()
 
-def create_mahasiswa(db: Session, mahasiswa: MahasiswaSchema):
-    hashed_password = hash_password(mahasiswa.password) 
+def create_mahasiswa(db: Session, mahasiswa: MahasiswaCreateSchema):
+    # Now accepts MahasiswaCreateSchema instead of MahasiswaSchema
+    hashed_password = hash_password(mahasiswa.password)
+    
     mahasiswa_id = uuid.uuid4()
     
     db_mahasiswa = Mahasiswa(
