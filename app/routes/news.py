@@ -14,7 +14,7 @@ from uuid import UUID
 
 router = APIRouter(prefix="/berita", tags=["Berita"])
 
-@router.post("/", response_model=NewsResponse)
+@router.post("/baru", response_model=NewsResponse)
 def create_news_route(
     author_name: Optional[str] = Form("Admin"),
     author_email: Optional[str] = Form(None),

@@ -9,7 +9,7 @@ from app.database.session import get_db
 
 router = APIRouter(prefix="/relation", tags=["Mahasiswa-Dosen"])
 
-@router.post("/baru", response_model=MahasiswaDosenSchema)
+@router.post("/", response_model=MahasiswaDosenSchema)
 def create_relation(relation: MahasiswaDosenCreateSchema, db: Session = Depends(get_db)):
     return assign_dosen(db, relation)
 
