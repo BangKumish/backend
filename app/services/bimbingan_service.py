@@ -20,8 +20,14 @@ async def create_waktu_bimbingan(db: Session, waktu_bimbingan_schema: CreateWakt
     )
     
     existing_count = db.query(WaktuBimbingan).filter(WaktuBimbingan.dosen_inisial == waktu_bimbingan_schema.dosen_inisial).count()
-    db_waktu_bimbingan.bimbingan_id = f"{waktu_bimbingan_schema.dosen_inisial.upper()}{existing_count + 1}" 
+    while True:
+        bimbingan_id = f"{waktu_bimbingan_schema.dosen_inisial.upper()}{existing_count + 1}"
+        if not db.query(WaktuBimbingan).filter(WaktuBimbingan.bimbingan_id == bimbingan_id).first():
+            break
+        existing_count += 1
     
+    db_waktu_bimbingan.bimbingan_id = bimbingan_id 
+
     payload = {
         "event": "create_waktu_bimbingan",
         "inisial": waktu_bimbingan_schema.dosen_inisial,
@@ -44,10 +50,6 @@ async def create_waktu_bimbingan(db: Session, waktu_bimbingan_schema: CreateWakt
             data=payload
         )
 
-    # await manager.broadcast_all(
-    #     message=payload
-    # )
-    
     db.add(db_waktu_bimbingan)
     db.commit()
     db.refresh(db_waktu_bimbingan)

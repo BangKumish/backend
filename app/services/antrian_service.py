@@ -137,6 +137,17 @@ async def update_status_antrian(db: Session, id_antrian: UUID):
 
     waktu = db.query(WaktuBimbingan).filter(WaktuBimbingan.bimbingan_id == antrian.waktu_id).first()
 
+    if waktu:
+        all_selesai = db.query(AntrianBimbingan).filter(
+            AntrianBimbingan.waktu_id == antrian.waktu_id,
+            AntrianBimbingan.status_antrian != "Dalam Bimbingan"
+        ).count() == 0
+
+        if all_selesai:
+            waktu.is_active = False
+            db.commit()
+            db.refresh(waktu)
+    
     if waktu and original_status == "Dalam Bimbingan":
         already_in_progress = db.query(AntrianBimbingan).filter_by(
             waktu_id=waktu.bimbingan_id,

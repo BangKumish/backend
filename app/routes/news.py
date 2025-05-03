@@ -38,7 +38,7 @@ def create_news_route(
 
     return create_news(db, news_data, picture)
 
-@router.get("/", response_model=list[NewsResponse])
+@router.get("/all", response_model=list[NewsResponse])
 def get_news_route(db: Session = Depends(get_db)):
     news_list = get_all_news(db)
     if not news_list:
