@@ -32,8 +32,6 @@ class SupabaseClient:
         
     def upload_to_supabase(self, file: UploadFile, folder: str="uploads") -> str:
         try:
-            # sanatized_filename = re.sub(r'[^a-zA-Z0-9_.-]', '_', file.filename)
-            # unique_filename = f"{uuid.uuid4()}_{sanatized_filename}"
             file_path = self.build_path(folder, file.filename)
             content_type = guess_type(file.filename)[0] or "application/octet-stream"
             file_bytes = file.file.read()
