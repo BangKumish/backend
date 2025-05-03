@@ -26,7 +26,7 @@ def create_scheduler():
         func=clear_old_notifications,
         trigger="cron",
         hour=0,
-        mintute=0
+        minute=0
     )
 
     scheduler.add_job(
