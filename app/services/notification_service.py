@@ -73,7 +73,7 @@ def send_upcoming_bimbingan_notifications(db: Session):
                     if notification_id in sent_notifications:
                         continue
 
-                    if antrian.status in ["Dalam Bimbingan", "Selesai"]:
+                    if antrian.status_antrian in ["Dalam Bimbingan", "Selesai"]:
                         continue
 
                     mahasiswa_nim = antrian.mahasiswa_nim
