@@ -6,6 +6,7 @@ from app.database.models.subscription import PushSubscription
 from app.database.models.waktu_bimbingan import WaktuBimbingan
 from app.schemas.push import PushNotificationPayload
 from app.services.push_service import PushService
+from app.core.logging import logger
 
 sent_notifications = {}
 push = PushService()
@@ -59,51 +60,40 @@ def send_upcoming_bimbingan_notifications(db: Session):
 
     for session in upcoming_sessions:
         for antrian in session.antrian_bimbingan:
-            mahasiswa_nim = antrian.mahasiswa_nim
+            notification_id = f"{antrian.id_antrian}-{antrian.mahasiswa_nim}-{str(session.waktu_mulai)}"
 
-            upcoming_sessions = db.query(WaktuBimbingan).filter(
-                WaktuBimbingan.tanggal == session.tanggal,
-                WaktuBimbingan.waktu_mulai.between(now.time(), thirty_minutes_later.time())
-            ).all()
+            if notification_id in sent_notifications:
+                continue
 
-            for session in upcoming_sessions:
-                for antrian in session.antrian_bimbingan:
-                    notification_id = f"{antrian.id_antrian}-{antrian.mahasiswa_nim}-{str(session.waktu_mulai)}"
-                    
-                    if notification_id in sent_notifications:
-                        continue
+            if antrian.status_antrian in ["Dalam Bimbingan", "Selesai"]:
+                continue
 
-                    if antrian.status_antrian in ["Dalam Bimbingan", "Selesai"]:
-                        continue
+            subscription = db.query(PushSubscription).filter(
+                PushSubscription.user_id == antrian.mahasiswa_nim
+            ).first()
 
-                    mahasiswa_nim = antrian.mahasiswa_nim
-
-                    subscription = db.query(PushSubscription).filter(
-                        PushSubscription.user_id == mahasiswa_nim
-                    ).first()
-
-                    if subscription:
-                        try:
-                            push.send_notification(
-                                subscription={
-                                    "endpoint": subscription.endpoint,
-                                    "keys": {
-                                        "p256dh": subscription.keys_p256dh,
-                                        "auth": subscription.keys_auth
-                                    }
-                                },
-                                data={
-                                    "title": "Pengingat Bimbingan",
-                                    "body": f"Bimbingan Anda akan dimulai pada {session.waktu_mulai.strftime('%H:%M')} di {session.lokasi}.",
-                                    "data": {
-                                        "bimbingan_id": session.bimbingan_id,
-                                        "tanggal": session.tanggal.isoformat(),
-                                        "waktu_mulai": session.waktu_mulai.strftime('%H:%M'),
-                                        "lokasi": session.lokasi
-                                    }
-                                }
-                            )
-
-                            sent_notifications.add(notification_id)
-                        except Exception as e:
-                            print(f"Failed to send notification to {mahasiswa_nim}: {e}")
+            if subscription:
+                try:
+                    push.send_notification(
+                        subscription={
+                            "endpoint": subscription.endpoint,
+                            "keys": {
+                                "p256dh": subscription.keys_p256dh,
+                                "auth": subscription.keys_auth
+                            }
+                        },
+                        data={
+                            "title": "Pengingat Bimbingan",
+                            "body": f"Bimbingan Anda akan dimulai pada {session.waktu_mulai.strftime('%H:%M')} di {session.lokasi}.",
+                            "data": {
+                                "bimbingan_id": session.bimbingan_id,
+                                "tanggal": session.tanggal.isoformat(),
+                                "waktu_mulai": session.waktu_mulai.strftime('%H:%M'),
+                                "lokasi": session.lokasi
+                            }
+                        }
+                    )
+                    add_notification(notification_id)
+                    logger.info(f"✅ Sent notification to {antrian.mahasiswa_nim} for session {session.waktu_mulai.strftime('%H:%M')}")
+                except Exception as e:
+                    logger.error(f"Failed to send notification to {antrian.mahasiswa_nim}: {e}")

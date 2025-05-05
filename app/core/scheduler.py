@@ -3,8 +3,6 @@ from app.services.notification_service import clear_old_notifications
 from app.services.notification_service import send_upcoming_bimbingan_notifications
 from app.core.config import settings
 from app.database.session import SessionLocal
-from app.database.session import get_db
-
 
 def create_scheduler():
     scheduler = BackgroundScheduler(
