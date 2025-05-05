@@ -147,26 +147,6 @@ async def update_status_antrian(db: Session, id_antrian: UUID):
             waktu.is_active = False
             db.commit()
             db.refresh(waktu)
-    
-    if waktu and original_status == "Dalam Bimbingan":
-        already_in_progress = db.query(AntrianBimbingan).filter_by(
-            waktu_id=waktu.bimbingan_id,
-            status_antrian="Dalam Bimbingan"
-        ).first()
-
-        if not already_in_progress:
-            next_position = antrian.position + 1
-
-            next_antrian = db.query(AntrianBimbingan).filter_by(
-                waktu_id=waktu.bimbingan_id,
-                position=next_position,
-                status_antrian="Menunggu"
-            ).first()
-
-            if next_antrian:
-                next_antrian.status_antrian = "Dalam Bimbingan"
-                db.commit()
-                db.refresh(next_antrian)
 
     if waktu:
         daftar = db.query(AntrianBimbingan).filter_by(

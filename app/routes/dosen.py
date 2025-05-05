@@ -64,7 +64,11 @@ async def update_dosen_route(inisial: str, dosen_data: DosenUpdateSchema, db: Se
         "data":jsonable_encoder(DosenResponseSchema.model_validate(dosen))
     }
 
-@router.get("/admin/{dosen_id}", response_model=DosenResponseSchema)
+@router.get("/admin/all", response_model=list[DosenSchema], dependencies=[Depends(require_roles("admin"))])
+def get_all_dosen_admin_route(db: Session = Depends(get_db)):
+    return get_all_dosen(db)
+
+@router.get("/admin/{dosen_id}", response_model=DosenResponseSchema, dependencies=[Depends(require_roles("admin"))])
 def get_dosen_detail_route(dosen_id: UUID, db: Session = Depends(get_db)):
     return get_detail_dosen(db, dosen_id)
 
