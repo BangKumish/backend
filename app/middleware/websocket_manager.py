@@ -61,7 +61,7 @@ class WebSocketManager:
             for ws in connections:
                 unique_connections.add(ws)
 
-        for ws in unique_connections:
+        for ws in unique_connections.copy():
             try:
                 await ws.send_json(message)
             except Exception as e:
