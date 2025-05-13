@@ -1,9 +1,10 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
+from app.core.logging import logger
 from app.database.models.dosen import Dosen
 from app.database.models.user import User
-from app.routes.websocket_router import manager 
+from app.middleware.websocket_manager import manager 
 from app.schemas.dosen import *
 from app.schemas.push import PushNotificationPayload
 from app.middleware.jwt_handler import hash_password
@@ -82,6 +83,37 @@ def update_dosen(db: Session, nomor_induk: str, dosen_data: DosenUpdateSchema):
         }))
     
     return dosen
+
+def update_dosen_status(db: Session):
+    logger.info("Running Scheduled Task: Update Dosen Status")
+
+    list_dosen = db.query(Dosen).filter(Dosen.status_kehadiran == True).all()
+
+    if not list_dosen:
+        logger.info("No active dosen to update")
+        return
+
+    logger.info(f"Found {len(list_dosen)} dosen(s) with active status. Updating..")
+
+    for dosen in list_dosen:
+        logger.info(f"Updating Dosen: {dosen.name} ({dosen.alias})")
+        dosen.status_kehadiran = False
+        dosen.keterangan = ""
+    
+    db.commit()
+    logger.info("Database Commit Complete.")
+
+    for dosen in list_dosen:
+        db.refresh(dosen)
+        logger.info(f"Broadcasting Update For Dosen: {dosen.alias}")
+        asyncio.get_event_loop().create_task(manager.broadcast_all({
+            "Inisial Dosen": dosen.alias,
+            "Nama Dosen": dosen.name,
+            "Status Kehadiran": dosen.status_kehadiran,
+            "Keterangan": dosen.keterangan
+        }))
+    
+    logger.info("Update Dosen Status Complete")
 
 def delete_dosen(db: Session, dosen_id: UUID):
     dosen_data = db.query(Dosen).filter(Dosen.id == dosen_id).first()

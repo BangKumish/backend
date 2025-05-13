@@ -7,14 +7,14 @@ from fastapi import WebSocketDisconnect
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
-from app.middleware.websocket_manager import WebSocketManager
+from app.middleware.websocket_manager import manager
 from app.middleware.jwt_handler import decode_access_token
 
 from fastapi import HTTPException
 from uuid import uuid4
 
 router = APIRouter()
-manager = WebSocketManager()
+# manager = WebSocketManager()
 
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket, db: Session = Depends(get_db)):

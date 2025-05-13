@@ -6,7 +6,7 @@ from app.schemas.layanan import *
 from app.middleware.supabase_client import *
 from app.services.push_service import PushService
 from app.database.models.subscription import PushSubscription
-from app.routes.websocket_router import manager 
+from app.middleware.websocket_manager import manager 
 
 from datetime import datetime
 from uuid import UUID
