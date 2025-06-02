@@ -75,3 +75,19 @@ def get_dosen_detail_route(dosen_id: UUID, db: Session = Depends(get_db)):
 @router.delete("/{dosen_id}", dependencies=[Depends(require_roles("admin"))])
 def delete_dosen_route(dosen_id: UUID, db: Session = Depends(get_db)):
     return delete_dosen(db, dosen_id)
+
+@router.patch("/t/u/hadir/{dosen_alias}")
+def test_update_hadir_dosen_route(dosen_alias: str, db: Session = Depends(get_db)):
+    dosen = db.query(Dosen).filter(Dosen.alias == dosen_alias).first()
+    if not dosen:
+        raise HTTPException(status_code=404, detail="Dosen tidak ditemukan.")
+    if dosen.status_kehadiran == False:
+        dosen.status_kehadiran = True
+        dosen.keterangan = "Hadir"
+    return {
+        "message": "Status kehadiran dosen telah diperbarui."
+        }
+
+@router.patch("/t/u/status")
+async def test_update_Status_kehadiran_route(db: Session = Depends(get_db)):
+    return update_dosen_status(db)

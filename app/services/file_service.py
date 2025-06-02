@@ -8,6 +8,8 @@ from app.middleware.supabase_client import *
 
 from uuid import UUID
 
+supabase = SupabaseClient()
+
 def get_files(db: Session, student_id: str):
     return db.query(Files).filter(Files.mahasiswa_nim == student_id).all()
 
@@ -29,3 +31,11 @@ def update_files(db: Session, file_id: UUID, update_data: FileUpdateSchema):
     db.commit()
     db.refresh(file_db)
     return file_db
+
+def delete_file(existing_file: Files, db: Session):
+    db.delete(existing_file)
+    db.commit()
+
+    return {
+        "message": "File deleted successfully."
+        }

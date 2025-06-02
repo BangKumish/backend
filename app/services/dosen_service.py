@@ -6,7 +6,6 @@ from app.database.models.dosen import Dosen
 from app.database.models.user import User
 from app.middleware.websocket_manager import manager 
 from app.schemas.dosen import *
-from app.schemas.push import PushNotificationPayload
 from app.middleware.jwt_handler import hash_password
 
 import asyncio
@@ -44,7 +43,7 @@ def get_dosen(db: Session, nomor_induk: str):
     return db.query(Dosen).filter(Dosen.alias == nomor_induk).first()
 
 def get_all_dosen(db: Session):
-    return db.query(Dosen).order_by(Dosen.name.asc()).all()
+    return db.query(Dosen).order_by(Dosen.status_kehadiran.desc(), Dosen.name.asc()).all()
 
 def get_detail_dosen(db: Session, dosen_id:UUID):
     return db.query(Dosen).filter(Dosen.id == dosen_id).first()
@@ -84,7 +83,7 @@ def update_dosen(db: Session, nomor_induk: str, dosen_data: DosenUpdateSchema):
     
     return dosen
 
-def update_dosen_status(db: Session):
+async def update_dosen_status(db: Session):
     logger.info("Running Scheduled Task: Update Dosen Status")
 
     list_dosen = db.query(Dosen).filter(Dosen.status_kehadiran == True).all()
@@ -106,14 +105,18 @@ def update_dosen_status(db: Session):
     for dosen in list_dosen:
         db.refresh(dosen)
         logger.info(f"Broadcasting Update For Dosen: {dosen.alias}")
-        asyncio.get_event_loop().create_task(manager.broadcast_all({
+        await manager.broadcast_all({
             "Inisial Dosen": dosen.alias,
             "Nama Dosen": dosen.name,
             "Status Kehadiran": dosen.status_kehadiran,
             "Keterangan": dosen.keterangan
-        }))
+        })
     
     logger.info("Update Dosen Status Complete")
+    return {
+        "message": "Update Dosen Status Complete",
+        "count": len(list_dosen)
+    }
 
 def delete_dosen(db: Session, dosen_id: UUID):
     dosen_data = db.query(Dosen).filter(Dosen.id == dosen_id).first()
