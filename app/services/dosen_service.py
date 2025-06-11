@@ -2,12 +2,14 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
 from app.core.logging import logger
+from app.database.models.attendance_log import AttendanceLog
 from app.database.models.dosen import Dosen
 from app.database.models.user import User
 from app.middleware.websocket_manager import manager 
 from app.schemas.dosen import *
 from app.middleware.jwt_handler import hash_password
 
+from datetime import datetime
 import asyncio
 import uuid
 
@@ -80,6 +82,17 @@ def update_dosen(db: Session, nomor_induk: str, dosen_data: DosenUpdateSchema):
             "Status Kehadiran": dosen.status_kehadiran,
             "Keterangan": dosen.keterangan
         }))
+
+        if dosen.status_kehadiran == True:
+            db.add(AttendanceLog(
+                dosen_inisial = dosen.alias,
+                dosen_nama = dosen.name,
+                tanggal = datetime.now().date(),
+                status_kehadiran = True,
+                keterangan = ""
+            ))
+            db.commit()
+            db.refresh(dosen)
     
     return dosen
 
@@ -113,6 +126,7 @@ async def update_dosen_status(db: Session):
         })
     
     logger.info("Update Dosen Status Complete")
+
     return {
         "message": "Update Dosen Status Complete",
         "count": len(list_dosen)
@@ -137,3 +151,58 @@ def delete_dosen(db: Session, dosen_id: UUID):
     return {
         "message": f"DOSEN {name} has been removed"
     }
+
+def set_kehadiran_dosen(db: Session, dosen_inisial: str):
+    dosen = db.query(Dosen).filter(Dosen.alias == dosen_inisial).first()
+    if not dosen:
+        return None
+    
+    if dosen.status_kehadiran:
+        dosen.status_kehadiran = False
+        dosen.keterangan = "Dosen tidak hadir"
+
+    else:
+        dosen.status_kehadiran = True
+        dosen.keterangan = ""
+        date_now = datetime.now().date()
+        existing_log = db.query(AttendanceLog).filter(
+            AttendanceLog.dosen_inisial == dosen.alias,
+            AttendanceLog.tanggal == date_now
+        ).first()
+
+        if not existing_log:
+            attendace_log = AttendanceLog(
+                dosen_inisial = dosen.alias,
+                dosen_nama = dosen.name,
+                tanggal = datetime.now().date(),
+                status_kehadiran = True,
+                keterangan = ""
+            )
+        db.add(attendace_log)
+    
+    db.commit()
+    db.refresh(dosen)
+
+    manager.broadcast_all({
+        "Inisial Dosen": dosen.alias,
+        "Nama Dosen": dosen.name,
+        "Status Kehadiran": dosen.status_kehadiran,
+        "Keterangan": dosen.keterangan
+    })
+    
+    return dosen
+
+def get_dosen_attendance_logs(db: Session, dosen_inisial: str):
+    dosen = db.query(Dosen).filter(Dosen.alias == dosen_inisial).first()
+    if not dosen:
+        raise HTTPException(
+            status_code=404,
+            detail="Dosen tidak ditemukan"
+        )
+    
+    attendance_logs = db.query(AttendanceLog).filter(AttendanceLog.dosen_inisial == dosen.alias).order_by(AttendanceLog.tanggal.asc()).all()
+    return attendance_logs
+
+def get_all_dosen_attendance_logs(db: Session):
+    attendance_logs = db.query(AttendanceLog).order_by(AttendanceLog.dosen_inisial.asc(), AttendanceLog.tanggal.asc()).all()
+    return attendance_logs

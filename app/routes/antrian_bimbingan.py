@@ -42,7 +42,7 @@ def get_all_antrian_by_nim_route(nim: str, db: Session = Depends(get_db)):
 
 @router.get("/all/dosen/{inisial}", response_model=list[AntrianBimbinganSchema])
 def get_all_antrian_by_dosen_route(inisial: str, db: Session = Depends(get_db)):
-    antrian = db.query(AntrianBimbingan).filter(AntrianBimbingan.dosen_alias == inisial).all()
+    antrian = db.query(AntrianBimbingan).filter(AntrianBimbingan.dosen_inisial == inisial).all()
     if not antrian:
         raise HTTPException(status_code=404, detail="Tidak ada antrian ditemukan untuk dosen ini.")
     return antrian

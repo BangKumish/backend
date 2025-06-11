@@ -76,18 +76,29 @@ def get_dosen_detail_route(dosen_id: UUID, db: Session = Depends(get_db)):
 def delete_dosen_route(dosen_id: UUID, db: Session = Depends(get_db)):
     return delete_dosen(db, dosen_id)
 
-@router.patch("/t/u/hadir/{dosen_alias}")
-def test_update_hadir_dosen_route(dosen_alias: str, db: Session = Depends(get_db)):
-    dosen = db.query(Dosen).filter(Dosen.alias == dosen_alias).first()
+@router.patch("/u/s/{dosen_alias}")
+async def update_kehadiran_dosen(dosen_alias: str, db: Session = Depends(get_db)):
+    dosen = set_kehadiran_dosen(db, dosen_alias)
     if not dosen:
-        raise HTTPException(status_code=404, detail="Dosen tidak ditemukan.")
-    if dosen.status_kehadiran == False:
-        dosen.status_kehadiran = True
-        dosen.keterangan = "Hadir"
+        raise HTTPException(status_code=404, detail="Dosen tidak ditemukan")
     return {
-        "message": "Status kehadiran dosen telah diperbarui."
-        }
+        "message": f"Dosen {dosen_alias} telah diupdate kehadirannya."
+    }
 
 @router.patch("/t/u/status")
 async def test_update_Status_kehadiran_route(db: Session = Depends(get_db)):
-    return update_dosen_status(db)
+    return await update_dosen_status(db)
+
+@router.get("/attendance/{dosen_inisial}", response_model=list[AttendanceLogSchema])
+def get_dosen_attendance_route(dosen_inisial: str, db: Session = Depends(get_db)):
+    attendance_logs = get_dosen_attendance_logs(db, dosen_inisial)
+    if not attendance_logs:
+        raise HTTPException(status_code=404, detail="Attendance logs not found for this dosen.")
+    return attendance_logs
+
+@router.get("/attendance-all/", response_model=list[AttendanceLogSchema])
+def get_all_dosen_attendance_route(db: Session = Depends(get_db)):
+    attendance_logs = get_all_dosen_attendance_logs(db)
+    if not attendance_logs:
+        raise HTTPException(status_code=404, detail="No attendance logs found.")
+    return attendance_logs

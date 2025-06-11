@@ -30,3 +30,4 @@ class Dosen(Base):
     waktu_bimbingan = Relationship("WaktuBimbingan", back_populates="dosen", cascade="all, delete-orphan")
     antrian_bimbingan = Relationship("AntrianBimbingan", back_populates="dosen", cascade="all, delete-orphan")
     mahasiswa_relation = Relationship('MahasiswaDosen', back_populates="dosen", cascade="all, delete-orphan")
+    attendance_logs = Relationship("AttendanceLog", back_populates="dosen", cascade="all, delete-orphan, save-update")

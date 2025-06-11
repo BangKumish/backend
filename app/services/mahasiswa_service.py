@@ -14,7 +14,6 @@ import uuid
 supabase = SupabaseClient()
 
 def create_mahasiswa(db: Session, mahasiswa: MahasiswaCreateSchema):
-    # Now accepts MahasiswaCreateSchema instead of MahasiswaSchema
     hashed_password = hash_password(mahasiswa.password)
     
     mahasiswa_id = uuid.uuid4()

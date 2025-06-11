@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from pydantic import ConfigDict
+from datetime import date
 from typing import Optional
 from uuid import UUID
 
@@ -42,3 +43,12 @@ class DosenResponseSchema(BaseModel):
 
     model_config = ConfigDict(from_attributes=True) 
 
+class AttendanceLogSchema(BaseModel):
+    id: int
+    dosen_inisial: str
+    dosen_nama: str
+    tanggal: date
+    status_kehadiran: bool
+    keterangan: Optional[str] = ""
+
+    model_config = ConfigDict(from_attributes=True)
