@@ -152,18 +152,18 @@ def delete_dosen(db: Session, dosen_id: UUID):
         "message": f"DOSEN {name} has been removed"
     }
 
-def set_kehadiran_dosen(db: Session, dosen_inisial: str):
+def set_kehadiran_dosen(db: Session, dosen_inisial: str, status: str = None):
     dosen = db.query(Dosen).filter(Dosen.alias == dosen_inisial).first()
     if not dosen:
         return None
     
     if dosen.status_kehadiran:
         dosen.status_kehadiran = False
-        dosen.keterangan = "Dosen tidak hadir"
+        dosen.keterangan = status if status else "Dosen tidak hadir"
 
     else:
         dosen.status_kehadiran = True
-        dosen.keterangan = ""
+        dosen.keterangan = status if status else "Dosen hadir"
         date_now = datetime.now().date()
         existing_log = db.query(AttendanceLog).filter(
             AttendanceLog.dosen_inisial == dosen.alias,
@@ -171,24 +171,26 @@ def set_kehadiran_dosen(db: Session, dosen_inisial: str):
         ).first()
 
         if not existing_log:
-            attendace_log = AttendanceLog(
+            attendance_log = AttendanceLog(
                 dosen_inisial = dosen.alias,
                 dosen_nama = dosen.name,
                 tanggal = datetime.now().date(),
                 status_kehadiran = True,
-                keterangan = ""
+                keterangan = status
             )
-        db.add(attendace_log)
+        db.add(attendance_log)
     
     db.commit()
     db.refresh(dosen)
 
-    manager.broadcast_all({
-        "Inisial Dosen": dosen.alias,
-        "Nama Dosen": dosen.name,
-        "Status Kehadiran": dosen.status_kehadiran,
-        "Keterangan": dosen.keterangan
-    })
+    asyncio.get_event_loop().create_task(
+        manager.broadcast_all({
+            "Inisial Dosen": dosen.alias,
+            "Nama Dosen": dosen.name,
+            "Status Kehadiran": dosen.status_kehadiran,
+            "Keterangan": dosen.keterangan
+        })
+    )
     
     return dosen
 

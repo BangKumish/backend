@@ -77,8 +77,8 @@ def delete_dosen_route(dosen_id: UUID, db: Session = Depends(get_db)):
     return delete_dosen(db, dosen_id)
 
 @router.patch("/u/s/{dosen_alias}")
-async def update_kehadiran_dosen(dosen_alias: str, db: Session = Depends(get_db)):
-    dosen = set_kehadiran_dosen(db, dosen_alias)
+async def update_kehadiran_dosen(dosen_alias: str, status: str = None, db: Session = Depends(get_db)):
+    dosen = set_kehadiran_dosen(db, dosen_alias, status)
     if not dosen:
         raise HTTPException(status_code=404, detail="Dosen tidak ditemukan")
     return {
