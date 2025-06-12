@@ -56,13 +56,7 @@ def get_dosen_route(inisial: str, db: Session = Depends(get_db)):
 
 @router.put("/{inisial}")
 async def update_dosen_route(inisial: str, dosen_data: DosenUpdateSchema, db: Session = Depends(get_db)):
-    dosen = update_dosen(db, inisial, dosen_data)
-    if not dosen:
-        raise HTTPException(status_code = 404, detail = "Dosen Tidak Ditemukan")
-    return {
-        "Message": "Dosen Telah diUpdate", 
-        "data":jsonable_encoder(DosenResponseSchema.model_validate(dosen))
-    }
+    return await update_dosen(db, inisial, dosen_data)
 
 @router.get("/admin/all", response_model=list[DosenSchema], dependencies=[Depends(require_roles("admin"))])
 def get_all_dosen_admin_route(db: Session = Depends(get_db)):
@@ -77,16 +71,11 @@ def delete_dosen_route(dosen_id: UUID, db: Session = Depends(get_db)):
     return delete_dosen(db, dosen_id)
 
 @router.patch("/u/s/{dosen_alias}")
-async def update_kehadiran_dosen(dosen_alias: str, status: str = None, db: Session = Depends(get_db)):
-    dosen = set_kehadiran_dosen(db, dosen_alias, status)
-    if not dosen:
-        raise HTTPException(status_code=404, detail="Dosen tidak ditemukan")
-    return {
-        "message": f"Dosen {dosen_alias} telah diupdate kehadirannya."
-    }
+async def update_kehadiran_dosen(dosen_alias: str, keterangan: str = None, db: Session = Depends(get_db)):
+    return await set_kehadiran_dosen(db, dosen_alias, keterangan)
 
 @router.patch("/t/u/status")
-async def test_update_Status_kehadiran_route(db: Session = Depends(get_db)):
+async def set_all_dosen_status_to_false(db: Session = Depends(get_db)):
     return await update_dosen_status(db)
 
 @router.get("/attendance/{dosen_inisial}", response_model=list[AttendanceLogSchema])
