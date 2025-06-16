@@ -1,9 +1,7 @@
 from sqlalchemy import Column
 from sqlalchemy import DateTime 
-from sqlalchemy import ForeignKey
 from sqlalchemy import String
 from sqlalchemy import Text
-from sqlalchemy.orm import Relationship
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.database.session import Base

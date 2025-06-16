@@ -41,7 +41,7 @@ class DokumenPersyaratan(Base):
     __tablename__ = "dokumen_persyaratan"
 
     id = Column(Integer, primary_key=True, index=True)
-    jenis_layanan_id = Column(Integer, ForeignKey("jenis_layanan.id", ondelete="CASCADE"), nullable=False)
+    jenis_layanan_id = Column(Integer, ForeignKey("jenis_layanan.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     nama_dokumen = Column(String, nullable=False)
     is_wajib = Column(Boolean, default=True)
 
@@ -53,8 +53,8 @@ class PengajuanLayanan(Base):
 
     # id = Column(Integer, primary_key=True, index=True)
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    mahasiswa_nim = Column(String, ForeignKey("mahasiswa.nim", ondelete="CASCADE"), nullable=False)
-    jenis_layanan_id = Column(Integer, ForeignKey("jenis_layanan.id", ondelete="CASCADE"), nullable=False)
+    mahasiswa_nim = Column(String, ForeignKey("mahasiswa.nim", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    jenis_layanan_id = Column(Integer, ForeignKey("jenis_layanan.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     status = Column(String, default="Menunggu")
     catatan_admin = Column(Text, nullable=True)
     jadwal_pengambilan = Column(DateTime, nullable=True)
@@ -70,7 +70,7 @@ class LampiranPengajuan(Base):
     __tablename__ = "lampiran_pengajuan"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    pengajuan_id = Column(UUID(as_uuid=True), ForeignKey("pengajuan_layanan.id", ondelete="CASCADE"), nullable=False)
+    pengajuan_id = Column(UUID(as_uuid=True), ForeignKey("pengajuan_layanan.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     nama_dokumen = Column(String, nullable=False)
     file_url = Column(String, nullable=False)
     uploaded_at = Column(DateTime, default=datetime.now())

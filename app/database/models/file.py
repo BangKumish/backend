@@ -20,8 +20,8 @@ class Files(Base):
     __tablename__ = "files"
 
     file_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    antrian_id = Column(Integer, ForeignKey("antrian_bimbingan.id_antrian", ondelete="CASCADE"), nullable=False)
-    mahasiswa_nim = Column(String, ForeignKey("mahasiswa.nim", ondelete="CASCADE"), nullable=False)
+    antrian_id = Column(Integer, ForeignKey("antrian_bimbingan.id_antrian", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    mahasiswa_nim = Column(String, ForeignKey("mahasiswa.nim", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     
     filename = Column(String, nullable=False)
     file_url = Column(String, nullable=False)

@@ -13,8 +13,8 @@ class MahasiswaDosen(Base):
     __tablename__ = "mahasiswa_dosen"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    mahasiswa_nim = Column(String, ForeignKey("mahasiswa.nim", ondelete="CASCADE"), nullable=False)
-    dosen_alias = Column(String, ForeignKey("dosen.alias", ondelete="CASCADE"), nullable=False)
+    mahasiswa_nim = Column(String, ForeignKey("mahasiswa.nim", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    dosen_alias = Column(String, ForeignKey("dosen.alias", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     role = Column(String)
     created_at = Column(DateTime, default=datetime.now(), nullable=False)
     

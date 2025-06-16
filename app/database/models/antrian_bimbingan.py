@@ -16,9 +16,9 @@ class AntrianBimbingan(Base):
     __tablename__ = "antrian_bimbingan"
 
     id_antrian = Column(UUID(as_uuid=True), primary_key=True, index=True, unique=True, default=uuid.uuid4)
-    mahasiswa_nim = Column(String, ForeignKey("mahasiswa.nim", ondelete="CASCADE"), nullable=False)
-    waktu_id = Column(String, ForeignKey("waktu_bimbingan.bimbingan_id", ondelete="CASCADE"), nullable=False)
-    dosen_inisial = Column(String, ForeignKey("dosen.alias", ondelete="CASCADE"), nullable=False)
+    mahasiswa_nim = Column(String, ForeignKey("mahasiswa.nim", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    waktu_id = Column(String, ForeignKey("waktu_bimbingan.bimbingan_id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    dosen_inisial = Column(String, ForeignKey("dosen.alias", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     
     status_antrian = Column(String, nullable=False, default="Menunggu")
     position = Column(Integer, nullable=False)

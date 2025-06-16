@@ -15,7 +15,7 @@ class WaktuBimbingan(Base):
     __tablename__ = "waktu_bimbingan"
 
     bimbingan_id = Column(String, primary_key=True, index=True)
-    dosen_inisial = Column(String, ForeignKey('dosen.alias', ondelete="CASCADE"), nullable=False)
+    dosen_inisial = Column(String, ForeignKey('dosen.alias', ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
 
     tanggal = Column(Date, nullable=False)
     waktu_mulai = Column(Time, nullable=False)
