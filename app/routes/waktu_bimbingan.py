@@ -8,13 +8,13 @@ from app.database.session import get_db
 
 router = APIRouter(prefix="/waktu_bimbingan", tags=["Waktu Bimbingan"])
 
+@router.get("/", response_model=List[WaktuBimbinganSchema])
+def get_all_waktu_bimbingan_route(db: Session = Depends(get_db)):
+    return db.query(WaktuBimbingan).all()
+
 @router.post("/", response_model=WaktuBimbinganSchema)
 async def create_waktu_bimbingan_route(waktu_bimbingan: CreateWaktuBimbinganSchema, db: Session = Depends(get_db)):
     return await create_waktu_bimbingan(db, waktu_bimbingan)
-
-@router.get("/{bimbingan_id}", response_model=WaktuBimbinganSchema)
-def get_waktu_bimbingan_route(bimbingan_id: str, db: Session = Depends(get_db)):
-    return get_waktu_bimbingan(db, bimbingan_id)
 
 @router.get("/dosen/{dosen_inisial}", response_model=List[WaktuBimbinganSchema])
 def get_bimbingan_by_dosen(dosen_inisial: str, db: Session = Depends(get_db)):
@@ -28,3 +28,6 @@ async def update_waktu_bimbingan_route(bimbingan_id: str, updated_data: UpdateWa
 def delete_waktu_bimbingan_route(bimbingan_id: str, db: Session = Depends(get_db)):
     return delete_waktu_bimbingan(db, bimbingan_id)
 
+@router.get("/{bimbingan_id}", response_model=WaktuBimbinganSchema)
+def get_waktu_bimbingan_route(bimbingan_id: str, db: Session = Depends(get_db)):
+    return get_waktu_bimbingan(db, bimbingan_id)

@@ -30,9 +30,7 @@ async def ambil_antrian_bimbingan(db: Session, waktu_id: str, nim: str, file: Op
             status_code=404,
             detail="Waktu bimbingan tidak ditemukan."
         )
-    
-    dosen = waktu.dosen
-    
+        
     sudah_ada = db.query(AntrianBimbingan).filter_by(mahasiswa_nim=nim, waktu_id=waktu_id).first()
     if sudah_ada:
         raise HTTPException(
@@ -63,8 +61,6 @@ async def ambil_antrian_bimbingan(db: Session, waktu_id: str, nim: str, file: Op
     db.commit()
     db.refresh(antrian)
 
-    daftar = db.query(AntrianBimbingan).filter_by(waktu_id=waktu_id).order_by(AntrianBimbingan.created_at).all()
-
     uploaded_file = None
     if file:
         uploaded_file = await upload_file(
@@ -74,33 +70,7 @@ async def ambil_antrian_bimbingan(db: Session, waktu_id: str, nim: str, file: Op
             db = db
         )
 
-    queue_data = [
-        {
-            "id_antrian": str(item.id_antrian),
-            "nim": item.mahasiswa_nim,
-            "status": item.status_antrian
-        }
-        for item in daftar
-    ]
-
-    payload = {
-        "event": "update_antrian",
-        "inisial": dosen.alias,
-        "waktu_id": waktu.bimbingan_id,
-        "tanggal": str(waktu.tanggal),
-        "queue": queue_data
-    }
-
-    send_tasks = [
-    manager.send_json(user_id=item.mahasiswa_nim, data=payload)
-    for item in daftar
-    ]
-
-    send_tasks.append(
-        manager.send_json(user_id=dosen.alias, data=payload)
-    )
-
-    await asyncio.gather(*send_tasks)
+    await antrian_websocket_handler(db, antrianId)
 
     return AmbilAntrianResponse(
         message="Berhasil masuk antrian",
@@ -135,6 +105,8 @@ def delete_antrian_file(db: Session, id_antrian: UUID):
 
 async def update_antrian(db: Session, id_antrian: UUID, file: Optional[UploadFile] = None):
     antrian = db.query(AntrianBimbingan).filter(AntrianBimbingan.id_antrian == id_antrian).first()
+    waktu = db.query(WaktuBimbingan).filter(WaktuBimbingan.bimbingan_id == antrian.waktu_id).first()
+
     if not antrian:
         raise HTTPException(
             status_code=404,
@@ -160,6 +132,8 @@ async def update_antrian(db: Session, id_antrian: UUID, file: Optional[UploadFil
         db.commit()
         db.refresh(antrian)
 
+        await antrian_websocket_handler(db, id_antrian)
+        
         return{
             "message": "File berhasil diperbarui.",
             "data": antrian
@@ -180,8 +154,6 @@ async def update_status_antrian(db: Session, id_antrian: UUID):
             status_code=404,
             detail="Antrian tidak ditemukan."
         )
-
-    original_status = antrian.status_antrian
 
     if antrian.status_antrian == "Menunggu":
         antrian.status_antrian = "Dalam Bimbingan"
@@ -204,36 +176,7 @@ async def update_status_antrian(db: Session, id_antrian: UUID):
             db.commit()
             db.refresh(waktu)
 
-    if waktu:
-        daftar = db.query(AntrianBimbingan).filter_by(
-            waktu_id=waktu.bimbingan_id
-        ).order_by(AntrianBimbingan.position).all()
-
-        payload = {
-            "event": "update_antrian",
-            "inisial": antrian.dosen_inisial,
-            "waktu_id": waktu.bimbingan_id,
-            "tanggal": str(waktu.tanggal),
-            "queue": [
-                {
-                    "id_antrian": str(item.id_antrian),
-                    "nim": item.mahasiswa_nim,
-                    "status": item.status_antrian
-                } for item in daftar
-            ]
-        }
-
-        send_tasks = [
-            manager.send_json(user_id=item.mahasiswa_nim, data=payload)
-            for item in daftar
-        ]
-
-        # Kirim ke dosennya juga
-        send_tasks.append(
-            manager.send_json(user_id=antrian.dosen_inisial, data=payload)
-        )
-
-        await asyncio.gather(*send_tasks)
+        await antrian_websocket_handler(db, id_antrian)
 
     return {"message": f"Status antrian diperbaharui menjadi {antrian.status_antrian}."}
 
@@ -267,52 +210,15 @@ async def delete_antrian(idAntrian: UUID, db: Session):
 
         waktu = db.query(WaktuBimbingan).filter(WaktuBimbingan.bimbingan_id == waktu_id).first()
         if waktu:
-            daftar = db.query(AntrianBimbingan).filter_by(
-                waktu_id=waktu.bimbingan_id
-            ).order_by(AntrianBimbingan.position).all()
-
-            payload = {
-                "event": "delete_antrian",
-                "inisial": dosen_inisial,
-                "waktu_id": waktu.bimbingan_id,
-                "tanggal": str(waktu.tanggal),
-                "deleted_antrian": {
-                    "id_antrian": str(idAntrian),
-                    "nim": deleted_mahasiswa_nim,
-                    "position": deleted_position
-                },
-                "queue": [
-                    {
-                        "id_antrian": str(item.id_antrian),
-                        "nim": item.mahasiswa_nim,
-                        "status": item.status_antrian,
-                        "position": item.position
-                    } for item in daftar
-                ]
-            }
-
-            send_tasks = []
-
-            for item in daftar:
-                send_tasks.append(
-                    manager.send_json(user_id=item.mahasiswa_nim, data=payload) 
-                )
-            
-            send_tasks.append(
-                manager.send_json(user_id=dosen_inisial, data=payload)
-            )
+            await antrian_websocket_handler(db, idAntrian)
 
             deleted_payload = {
                 "event": "antrian_deleted",
                 "message": "Antrian Anda telah dihapus",
                 "id_antrian": str(idAntrian)
             }
-
-            send_tasks.append(
-                manager.send_json(user_id=deleted_mahasiswa_nim, data=deleted_payload)
-            )
-
-            await asyncio.gather(*send_tasks, return_exceptions=True)
+            
+            await manager.send_json(user_id=deleted_mahasiswa_nim, data=deleted_payload)
 
         return {
             "message": f"Antrian telah dihapus",
@@ -330,3 +236,34 @@ async def delete_antrian(idAntrian: UUID, db: Session):
             status_code=500,
             detail=f"Terjadi kesalahan saat menghapus antrian: {str(e)}"
         )
+    
+async def antrian_websocket_handler(db: Session, id_antrian: UUID):
+    antrian = db.query(AntrianBimbingan).filter(AntrianBimbingan.id_antrian == id_antrian).first()
+    daftar = db.query(AntrianBimbingan).filter_by(waktu_id=antrian.waktu_id).order_by(AntrianBimbingan.position).all()
+    waktu = db.query(WaktuBimbingan).filter(WaktuBimbingan.bimbingan_id == antrian.waktu_id).first()
+
+    payload = {
+            "event": "update_antrian",
+            "inisial": antrian.dosen_inisial,
+            "waktu_id": waktu.bimbingan_id,
+            "tanggal": str(waktu.tanggal),
+            "queue": [
+                {
+                    "id_antrian": str(item.id_antrian),
+                    "nim": item.mahasiswa_nim,
+                    "status": item.status_antrian
+                } for item in daftar
+            ]
+        }
+
+    send_tasks = [
+        manager.send_json(user_id=item.mahasiswa_nim, data=payload)
+        for item in daftar
+    ]
+
+    send_tasks.append(
+        manager.send_json(user_id=antrian.dosen_inisial, data=payload)
+    )
+
+    await asyncio.gather(*send_tasks)
+        
