@@ -43,3 +43,7 @@ def forgot_password_route(email: str, db: Session = Depends(get_db)):
 @router.post("/reset-password")
 def reset_password_route(token: str, new_password: str, db: Session = Depends(get_db)):
     return reset_password(db, token, new_password)
+
+@router.patch("/change-password")
+def change_password_route(current_password: str, new_password: str, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    return change_password(db, user, current_password, new_password)

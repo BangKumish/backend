@@ -173,3 +173,35 @@ def reset_password(db: Session, token: str, new_password: str):
     db.refresh(user)
 
     return {"message": "Password has been reset successfully"}
+
+def change_password(db: Session, user: User, old_password: str, new_password: str):
+    if not verify_password(old_password, user.password):
+        raise HTTPException(
+            status_code=401,
+            detail="Old Password is Incorrect",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    
+    hashed_new_password = hash_password(new_password)
+    user.password = hashed_new_password
+    
+    if user.role == "mahasiswa":
+        mhs = db.query(Mahasiswa).filter(Mahasiswa.id == user.user_id).first()
+        mhs.password = hashed_new_password
+    elif user.role == "dosen":
+        dosen = db.query(Dosen).filter(Dosen.id == user.user_id).first()
+        dosen.password = hashed_new_password
+    elif user.role == "admin":
+        admin = db.query(Admin).filter(Admin.id == user.user_id).first()
+        admin.password = hashed_new_password
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid User Role",
+            headers={"WWW-Authenticate":"Bearer"}
+        )
+    
+    db.commit()
+    db.refresh(user)
+
+    return {"message": "Password has been changed successfully"}

@@ -41,7 +41,7 @@ def create_dosen(db: Session, dosen: DosenCreateSchema):
     return db_dosen
 
 def get_dosen(db: Session, nomor_induk: str):
-    dosen = db.query(Dosen).filter(Dosen.nomor_induk == nomor_induk).first()
+    dosen = db.query(Dosen).filter(Dosen.alias == nomor_induk).first()
     if not dosen:
         raise HTTPException(
             status_code=404,
